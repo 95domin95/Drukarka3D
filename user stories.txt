@@ -1,8 +1,0 @@
-Jako u¿ytkowanik chcê:
--wgl¹d do histori zamówieñ i zadecydowaæ czy podzieliæ siê swoimi projektamiz innymi
--mieæ mo¿liwoœæ oceniania projektów innych u¿ytkowników
--zarejestrowania siê na stronie
--zalogowania siê na stronie i wylogowania siê z niej
--edycji swojego konta
--wgl¹d do histori zamówieñ
--podgl¹du projektu przd wydrukiem
