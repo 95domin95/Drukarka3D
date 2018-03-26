@@ -96,7 +96,7 @@ namespace Drukarka3D.Controllers
                 System.Diagnostics.Process.Start("CMD.exe", strCmdText);
             }
             
-
+            //test
 
             return RedirectToAction("Loader");
         }
