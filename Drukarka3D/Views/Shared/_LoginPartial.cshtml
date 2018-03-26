@@ -1,0 +1,15 @@
+@using Microsoft.AspNetCore.Identity
+@using Drukarka3DData.Models;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <li>
+        <a href="@Url.Action("MyOrders", "Home")"><strong>Witaj @UserManager.GetUserName(User)!</strong></a>
+    </li>
+    <li>
+        <a href="@Url.Action("MyOrders", "Home")">Moje projekty</a>
+    </li>
+}

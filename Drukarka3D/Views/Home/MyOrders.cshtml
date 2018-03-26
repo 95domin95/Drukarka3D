@@ -1,0 +1,25 @@
+﻿@model ICollection<Drukarka3DData.Models.Order>
+
+<div class="box">
+    <h2>Moje projekty</h2>
+    <table>
+        <tr>
+            <th>Status</th>
+            <th>Data przesłania</th>
+            <th>Pobierz</th>
+        </tr>
+        @foreach (var i in Model)
+    {
+        <tr>
+            <th>@i.Status</th>
+            <th>@i.UploadDate</th>
+            <th>
+                <a asp-action="Download" asp-route-filename="@i.Path">@i.Name</a>
+            </th>
+        </tr>
+}
+
+
+    </table>
+
+</div>

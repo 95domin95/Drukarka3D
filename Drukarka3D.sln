@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drukarka3D", "Drukarka3D\Drukarka3D.csproj", "{A1D07197-CA6E-424D-8E31-BF6EB522542A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Drukarka3DData", "Drukarka3DData\Drukarka3DData.csproj", "{9EB63148-CB41-4E7A-A113-04EAC641EC15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1D07197-CA6E-424D-8E31-BF6EB522542A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1D07197-CA6E-424D-8E31-BF6EB522542A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1D07197-CA6E-424D-8E31-BF6EB522542A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1D07197-CA6E-424D-8E31-BF6EB522542A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EB63148-CB41-4E7A-A113-04EAC641EC15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EB63148-CB41-4E7A-A113-04EAC641EC15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EB63148-CB41-4E7A-A113-04EAC641EC15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EB63148-CB41-4E7A-A113-04EAC641EC15}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {71F25642-47E5-4E13-AAF9-A661FCBAF92C}
+	EndGlobalSection
+EndGlobal
