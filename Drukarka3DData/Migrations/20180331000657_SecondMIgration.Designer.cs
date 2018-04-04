@@ -11,8 +11,8 @@ using System;
 namespace Drukarka3DData.Migrations
 {
     [DbContext(typeof(Drukarka3DContext))]
-    [Migration("20180318191816_SecondMigration")]
-    partial class SecondMigration
+    [Migration("20180331000657_SecondMIgration")]
+    partial class SecondMIgration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,8 +35,6 @@ namespace Drukarka3DData.Migrations
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
-
-                    b.Property<bool>("IsUser");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -74,73 +72,26 @@ namespace Drukarka3DData.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("Drukarka3DData.Models.File", b =>
-                {
-                    b.Property<int>("FileId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("FileName");
-
-                    b.Property<string>("Path");
-
-                    b.Property<int?>("UserId1");
-
-                    b.HasKey("FileId");
-
-                    b.HasIndex("UserId1");
-
-                    b.ToTable("File");
-                });
-
             modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("Status");
+                    b.Property<string>("Name");
 
-                    b.Property<int?>("UserId1");
+                    b.Property<string>("Path");
+
+                    b.Property<string>("Status");
+
+                    b.Property<DateTime>("UploadDate");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("Drukarka3DData.Models.User", b =>
-                {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Adress");
-
-                    b.Property<int>("ConfirmPassword");
-
-                    b.Property<string>("Email")
-                        .IsRequired();
-
-                    b.Property<string>("Login")
-                        .IsRequired()
-                        .HasMaxLength(50);
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(50);
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(50);
-
-                    b.Property<string>("PhoneNumber");
-
-                    b.Property<string>("Surname")
-                        .HasMaxLength(50);
-
-                    b.Property<string>("TypeOfUser");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -251,18 +202,11 @@ namespace Drukarka3DData.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Drukarka3DData.Models.File", b =>
-                {
-                    b.HasOne("Drukarka3DData.Models.User", "UserId")
-                        .WithMany()
-                        .HasForeignKey("UserId1");
-                });
-
             modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
                 {
-                    b.HasOne("Drukarka3DData.Models.User", "UserId")
+                    b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

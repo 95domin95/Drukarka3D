@@ -5,19 +5,10 @@ using System.Collections.Generic;
 
 namespace Drukarka3DData.Migrations
 {
-    public partial class SecondMigration : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Files");
-
-            migrationBuilder.DropTable(
-                name: "Orders");
-
-            migrationBuilder.DropTable(
-                name: "Users");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -41,7 +32,6 @@ namespace Drukarka3DData.Migrations
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(nullable: false),
-                    IsUser = table.Column<bool>(nullable: false),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
@@ -56,27 +46,6 @@ namespace Drukarka3DData.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Adress = table.Column<string>(nullable: true),
-                    ConfirmPassword = table.Column<int>(nullable: false),
-                    Email = table.Column<string>(nullable: false),
-                    Login = table.Column<string>(maxLength: 50, nullable: false),
-                    Name = table.Column<string>(maxLength: 50, nullable: true),
-                    Password = table.Column<string>(maxLength: 50, nullable: false),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    Surname = table.Column<string>(maxLength: 50, nullable: true),
-                    TypeOfUser = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -191,38 +160,21 @@ namespace Drukarka3DData.Migrations
                 {
                     FileId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    FileName = table.Column<string>(nullable: true),
+                    Discriminator = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
                     Path = table.Column<string>(nullable: true),
-                    UserId1 = table.Column<int>(nullable: true)
+                    UploadDate = table.Column<DateTime>(nullable: false),
+                    Status = table.Column<string>(nullable: true),
+                    UserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_File", x => x.FileId);
                     table.ForeignKey(
-                        name: "FK_File_User_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Order",
-                columns: table => new
-                {
-                    OrderId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Status = table.Column<bool>(nullable: false),
-                    UserId1 = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Order", x => x.OrderId);
-                    table.ForeignKey(
-                        name: "FK_Order_User_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "User",
-                        principalColumn: "UserId",
+                        name: "FK_File_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -266,14 +218,9 @@ namespace Drukarka3DData.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_File_UserId1",
+                name: "IX_File_UserId",
                 table: "File",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_UserId1",
-                table: "Order",
-                column: "UserId1");
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -297,87 +244,10 @@ namespace Drukarka3DData.Migrations
                 name: "File");
 
             migrationBuilder.DropTable(
-                name: "Order");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "User");
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Adress = table.Column<string>(nullable: true),
-                    Email = table.Column<string>(nullable: false),
-                    Login = table.Column<string>(maxLength: 50, nullable: false),
-                    Name = table.Column<string>(maxLength: 50, nullable: true),
-                    Password = table.Column<string>(maxLength: 50, nullable: false),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    Surname = table.Column<string>(maxLength: 50, nullable: true),
-                    TypeOfUser = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Files",
-                columns: table => new
-                {
-                    FileId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    FileName = table.Column<string>(nullable: true),
-                    Path = table.Column<string>(nullable: true),
-                    UserId1 = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Files", x => x.FileId);
-                    table.ForeignKey(
-                        name: "FK_Files_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    OrderId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Status = table.Column<bool>(nullable: false),
-                    UserId1 = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.OrderId);
-                    table.ForeignKey(
-                        name: "FK_Orders_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Files_UserId1",
-                table: "Files",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_UserId1",
-                table: "Orders",
-                column: "UserId1");
         }
     }
 }

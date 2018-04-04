@@ -21,8 +21,123 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="MyStaticFiles\" />
     <Folder Include="wwwroot\DoZatwierdzenia\" />
     <Folder Include="wwwroot\Zatwierdzone\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\2018-04-02- 011422.png" />
+    <None Include="wwwroot\images\2018-04-02- 013011.png" />
+    <None Include="wwwroot\images\2018-04-02- 013859.png" />
+    <None Include="wwwroot\images\2018-04-02- 014455.png" />
+    <None Include="wwwroot\images\2018-04-02- 015440.png" />
+    <None Include="wwwroot\images\2018-04-02- 015839.png" />
+    <None Include="wwwroot\images\2018-04-02- 020045.png" />
+    <None Include="wwwroot\images\2018-04-02- 020726.png" />
+    <None Include="wwwroot\images\2018-04-02- 020805.png" />
+    <None Include="wwwroot\images\2018-04-02- 022410.png" />
+    <None Include="wwwroot\images\2018-04-02- 025310.png" />
+    <None Include="wwwroot\images\2018-04-02- 130445.png" />
+    <None Include="wwwroot\images\2018-04-02- 130746.png" />
+    <None Include="wwwroot\images\2018-04-02- 130757.png" />
+    <None Include="wwwroot\images\2018-04-02- 130817.png" />
+    <None Include="wwwroot\images\2018-04-02- 130919.png" />
+    <None Include="wwwroot\images\2018-04-03- 013817.png" />
+    <None Include="wwwroot\images\2018-04-03- 014006.png" />
+    <None Include="wwwroot\images\2018-04-03- 014626.png" />
+    <None Include="wwwroot\images\2018-04-03- 014826.png" />
+    <None Include="wwwroot\images\2018-04-03- 015153.png" />
+    <None Include="wwwroot\images\2018-04-03- 015633.png" />
+    <None Include="wwwroot\images\2018-04-03- 020359.png" />
+    <None Include="wwwroot\images\2018-04-03- 020809.png" />
+    <None Include="wwwroot\images\2018-04-03-021303.png" />
+    <None Include="wwwroot\images\2018-04-03-021934.png" />
+    <None Include="wwwroot\images\2018-04-03-022246.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\images\2018-04-02- 011422.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 013011.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 013859.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 014455.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 015440.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 015839.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 020045.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 020726.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 020805.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 022410.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 025310.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 130445.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 130746.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 130757.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 130817.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-02- 130919.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 013817.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 014006.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 014626.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 014826.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 015153.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 015633.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 020359.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03- 020809.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03-021303.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03-021934.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\2018-04-03-022246.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

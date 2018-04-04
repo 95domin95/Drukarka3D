@@ -13,10 +13,11 @@
 </div>
 @*<div id="uploader">Przeciągnij plik tutaj...</div>*@
 
+@*<button type="submit" class="btn btn-default" id="screenShotBtn">Screen</button>*@
 <form asp-controller="Home" asp-action="UploadFile" method="post" enctype="multipart/form-data">
 
-    <label for="upload-file"><input type="file" name="file" id="file" /></label>
-    <button type="submit" id="confirm">Wyślij</button>
+    <label class="btn btn-default btn-file">Wybierz plik<input type="file" name="file" id="file" /></label>
+    <button type="submit" class="btn btn-default" id="confirm">Wyślij</button>
 </form>
 
 

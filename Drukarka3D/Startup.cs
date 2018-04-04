@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http.Features;
+using Drukarka3D.Services;
 
 namespace Drukarka3D
 {
@@ -28,7 +29,8 @@ namespace Drukarka3D
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+    .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.Configure<FormOptions>(x =>
             {
@@ -40,6 +42,8 @@ namespace Drukarka3D
             services.AddSingleton<IFileProvider>(
             new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
+
+            services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddDbContext<Drukarka3DContext>(options
                 => options.UseSqlServer(Configuration.GetConnectionString("Drukarka3DConnectionString")));
@@ -54,6 +58,7 @@ namespace Drukarka3D
         {
             if (env.IsDevelopment())
             {
+                app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials().Build());
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
@@ -65,6 +70,13 @@ namespace Drukarka3D
             app.UseAuthentication();
             //app.UseIdentity();
             app.UseStaticFiles();
+
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(
+            //        Path.Combine(Directory.GetCurrentDirectory(), "MyStaticFiles")),
+            //    RequestPath = "/StaticFiles"
+            //});
 
             app.UseMvc(routes =>
             {

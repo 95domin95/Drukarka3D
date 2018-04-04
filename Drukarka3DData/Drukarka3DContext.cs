@@ -10,12 +10,13 @@ namespace Drukarka3DData
     {
         public Drukarka3DContext()
         {
+
         }
 
         public Drukarka3DContext(DbContextOptions options) : base(options) { }
 
         //public DbSet<User> User { get; set; }
-        public DbSet<File> File { get; set; }
+        //public DbSet<File> File { get; set; }
         public DbSet<Order> Order { get; set; }
     }
 }

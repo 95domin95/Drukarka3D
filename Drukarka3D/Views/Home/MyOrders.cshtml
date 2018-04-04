@@ -2,24 +2,23 @@
 
 <div class="box">
     <h2>Moje projekty</h2>
-    <table>
-        <tr>
-            <th>Status</th>
-            <th>Data przesłania</th>
-            <th>Pobierz</th>
-        </tr>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Data przesłania</th>
+                <th>Pobierz</th>
+            </tr>
+        </thead>
         @foreach (var i in Model)
-    {
-        <tr>
-            <th>@i.Status</th>
-            <th>@i.UploadDate</th>
-            <th>
-                <a asp-action="Download" asp-route-filename="@i.Path">@i.Name</a>
-            </th>
-        </tr>
-}
-
-
+        {
+            <tr>
+                <th>@i.Status</th>
+                <th>@i.UploadDate.ToString()</th>
+                <th>
+                    <a asp-action="Download" asp-route-filename="@i.Path"><img src="@i.UserScreenPath" width="100" height="100"></a>
+                </th>
+            </tr>
+        }
     </table>
-
 </div>

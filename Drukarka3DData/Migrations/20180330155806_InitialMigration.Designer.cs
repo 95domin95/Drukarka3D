@@ -6,13 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using System;
 
 namespace Drukarka3DData.Migrations
 {
     [DbContext(typeof(Drukarka3DContext))]
-    [Migration("20180325185904_SixthMigration")]
-    partial class SixthMigration
+    [Migration("20180330155806_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -77,41 +78,20 @@ namespace Drukarka3DData.Migrations
                     b.Property<int>("FileId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired();
+
                     b.Property<string>("Name");
 
                     b.Property<string>("Path");
 
-                    b.Property<string>("UserId");
+                    b.Property<DateTime>("UploadDate");
 
                     b.HasKey("FileId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("File");
-                });
 
-            modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
-                {
-                    b.Property<int>("OrderId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("FileId");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Status");
-
-                    b.Property<string>("UploadDate");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("OrderId");
-
-                    b.HasIndex("FileId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Order");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("File");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -222,22 +202,19 @@ namespace Drukarka3DData.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Drukarka3DData.Models.File", b =>
-                {
-                    b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
                 {
-                    b.HasOne("Drukarka3DData.Models.File", "File")
-                        .WithMany()
-                        .HasForeignKey("FileId");
+                    b.HasBaseType("Drukarka3DData.Models.File");
 
-                    b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                    b.Property<string>("Status");
+
+                    b.Property<string>("UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Order");
+
+                    b.HasDiscriminator().HasValue("Order");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -283,6 +260,13 @@ namespace Drukarka3DData.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
+                {
+                    b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618
         }

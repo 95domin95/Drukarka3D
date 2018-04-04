@@ -3,7 +3,10 @@ window.addEventListener("load", function () {
     
     var w = 640, h = 480;
     
-    var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer({
+        preserveDrawingBuffer: true
+    });
+
     renderer.setSize(w, h);
     var view = document.getElementById("view");
     view.appendChild(renderer.domElement);
@@ -64,7 +67,16 @@ window.addEventListener("load", function () {
     var confirm = document.getElementById("confirm");
 
     confirm.addEventListener("click", function () {
-        confirm.innerHTML = "Czekaj..."
+        confirm.innerHTML = "Czekaj...";
+        createCanvasScreenshot(view);
+
+    });
+
+    var screenShotBtn = document.getElementById("screenShotBtn");
+
+    screenShotBtn.addEventListener("click", function () {
+        createCanvasScreenshot(view);
+
     });
 
      var input = document.getElementById("file");
@@ -73,6 +85,30 @@ window.addEventListener("load", function () {
          if (checkForValidFileExtension(file.name)) openFile(file);
          else alert("Plik musi mieć rozszerzenie stl.");
      }, false);
+
+      // We can attach the `fileselect` event to all file inputs on the page
+  //$(document).on('change', ':file', function() {
+  //  var input = $(this),
+  //      numFiles = input.get(0).files ? input.get(0).files.length : 1,
+  //      label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+  //  input.trigger('fileselect', [numFiles, label]);
+  //});
+
+  //// We can watch for our custom `fileselect` event like this
+  //$(document).ready( function() {
+  //    $(':file').on('fileselect', function(event, numFiles, label) {
+
+  //        var input = $(this).parents('.input-group').find(':text'),
+  //            log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+  //        if( input.length ) {
+  //            input.val(log);
+  //        } else {
+  //            if( log ) alert(log);
+  //        }
+
+  //    });
+  //});
 
 	//var uploader = document.getElementById("uploader");
  //   // dnd
@@ -114,4 +150,50 @@ function checkForValidFileExtension(elemVal)
     }
  
     return false;
+}
+
+function createCanvasScreenshot(canvas)
+{
+    var _url = 'UploadImage';
+
+    var obj = document.querySelector('#view > canvas:nth-child(1)').toDataURL("image/png");
+
+    obj = obj.replace('data:image/png;base64,', '');
+
+    var screen = { "File": obj };
+
+    alert(JSON.stringify(obj));
+
+    $.ajax({
+        method: "POST",
+        url: _url,
+        data: JSON.stringify(screen),
+        dataType: 'JSON',
+        contentType: "application/json; charset=utf-8"
+    })
+        .done(function (msg) {
+            //alert( "Done [string]: " + msg );
+            var parse_obj = JSON.parse(msg);
+            alert("Done: " + parse_obj.imie);
+        })
+        .fail(function (msg) {
+            alert("Fail [string]: " + msg);
+        });
+
+
+
+    ////data: '{ "imageData" : "' + dataURL + '" }'{ "imageData" :  + dataURL },
+
+    //alert(dataURL);
+
+    //$.ajax({
+    //    type: 'POST',
+    //    url: _url,
+    //    contentType: 'application/json; charset=utf-8',
+    //    data: { "imageData": + dataURL },
+    //    dataType: 'json',
+    //    success: function (msg) {
+    //        alert('Image saved successfully !');
+    //    }
+    //});
 }

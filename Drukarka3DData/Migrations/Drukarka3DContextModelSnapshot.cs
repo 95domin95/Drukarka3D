@@ -71,30 +71,10 @@ namespace Drukarka3DData.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("Drukarka3DData.Models.File", b =>
-                {
-                    b.Property<int>("FileId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Path");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("FileId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("File");
-                });
-
             modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("FileId");
 
                     b.Property<string>("Name");
 
@@ -102,13 +82,13 @@ namespace Drukarka3DData.Migrations
 
                     b.Property<string>("Status");
 
-                    b.Property<string>("UploadDate");
+                    b.Property<DateTime>("UploadDate");
 
                     b.Property<string>("UserId");
 
-                    b.HasKey("OrderId");
+                    b.Property<string>("UserScreenPath");
 
-                    b.HasIndex("FileId");
+                    b.HasKey("OrderId");
 
                     b.HasIndex("UserId");
 
@@ -223,19 +203,8 @@ namespace Drukarka3DData.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Drukarka3DData.Models.File", b =>
-                {
-                    b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
                 {
-                    b.HasOne("Drukarka3DData.Models.File", "File")
-                        .WithMany()
-                        .HasForeignKey("FileId");
-
                     b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");

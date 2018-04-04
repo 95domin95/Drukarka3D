@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace Drukarka3DData.Migrations
 {
-    public partial class SixthMigration : Migration
+    public partial class ThirdMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Name",
+                name: "UserScreenPath",
                 table: "Order",
                 nullable: true);
         }
@@ -17,7 +17,7 @@ namespace Drukarka3DData.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Name",
+                name: "UserScreenPath",
                 table: "Order");
         }
     }

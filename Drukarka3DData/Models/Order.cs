@@ -12,10 +12,10 @@ namespace Drukarka3DData.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderId { get; set; }
         public string Name { get; set; }
-        public string Status { get; set; }
-        public string UploadDate { get; set; }
         public string Path { get; set; }
+        public string Status { get; set; }
+        public string UserScreenPath { get; set; }
+        public DateTime UploadDate { get; set; }
         public ApplicationUser User { get; set; }
-        public File File { get; set; }
     }
 }
