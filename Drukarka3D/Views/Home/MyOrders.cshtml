@@ -1,5 +1,78 @@
 ﻿@model ICollection<Drukarka3DData.Models.Order>
 
+<script>
+    window.addEventListener("load", function () {
+        $("#select-sorting").change(function () {
+            sortTable();
+        });
+        $("#select-order").change(function () {
+            sortTable();
+        });
+    }, false);
+
+    var sortBy =
+        {
+            DATE: 1,
+            STATUS: 2
+        };
+
+    var sortOrder =
+        {
+            ASC: 1,
+            DESC: 2
+
+        };
+
+    function sortTable() {
+      var table, rows, switching, i, x, y, shouldSwitch;
+      table = document.getElementById("orders-table");
+      switching = true;
+      /*Make a loop that will continue until
+      no switching has been done:*/
+      while (switching) {
+        //start by saying: no switching is done:
+        switching = false;
+        rows = table.getElementsByTagName("TR");
+        /*Loop through all table rows (except the
+        first, which contains table headers):*/
+        for (i = 1; i < (rows.length - 1); i++) {
+          //start by saying there should be no switching:
+          shouldSwitch = false;
+          /*Get the two elements you want to compare,
+          one from current row and one from the next:*/
+
+          //var e = document.getElementById("select-sorting");
+
+          x = rows[i].getElementsByTagName("TD")[$("#select-sorting").val()];
+          y = rows[i + 1].getElementsByTagName("TD")[$("#select-sorting").val()];
+          //check if the two rows should switch place:
+          if ($("#select-order").val() == sortOrder.ASC) {
+
+              if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                  //if so, mark as a switch and break the loop:
+                  shouldSwitch = true;
+                  break;
+              }
+          }
+          else if ($("#select-order").val() == sortOrder.DESC) {
+              if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                  //if so, mark as a switch and break the loop:
+                  shouldSwitch = true;
+                  break;
+              }
+
+          }
+
+        }
+        if (shouldSwitch) {
+          /*If a switch has been marked, make the switch
+          and mark that a switch has been done:*/
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+        }
+      }
+    }
+</script>
 <div class="box">
     <h2>Moje projekty</h2>
     <br>
@@ -19,14 +92,18 @@
         Sortuj:
     </div>
     <div class="col-sm-2">
-        <form asp-controller="Home" asp-action="MyOrders">
-            <select class="form-control">
-                <option value="status">Status</option>
-                <option value="data">Data dodania</option>
-            </select>
-        </form>
+        <select id="select-sorting" class="form-control">
+            <option value="1" selected="selected">Data dodania</option>
+            <option value="2">Status</option>
+        </select>
     </div>
-    <table class="table table-hover">
+    <div class="col-sm-2">
+        <select id="select-order" class="form-control">
+            <option value="1" selected="selected">rosnąco</option>
+            <option value="2">malejąco</option>
+        </select>
+    </div>
+    <table class="table table-hover" id="orders-table">
         <thead>
             <tr>
                 <th>Status</th>
@@ -34,15 +111,17 @@
                 <th>Pobierz</th>
             </tr>
         </thead>
-        @foreach (var i in Model)
-        {
-            <tr>
-                <th>@i.Status</th>
-                <th>@i.UploadDate.ToString()</th>
-                <th>
-                    <a asp-action="Download" asp-route-filename="@i.Path"><img src="@i.UserScreenPath" width="100" height="100"></a>
-                </th>
-            </tr>
-        }
+        <tbody>
+            @foreach (var i in Model)
+            {
+                <tr>
+                    <td>@i.Status</td>
+                    <td>@i.UploadDate.ToString()</td>
+                    <td>
+                        <a asp-action="Download" asp-route-filename="@i.Path"><img src="@i.UserScreenPath" width="100" height="100"></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
     </table>
 </div>

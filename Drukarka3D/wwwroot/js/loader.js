@@ -74,10 +74,10 @@ window.addEventListener("load", function () {
 
     var screenShotBtn = document.getElementById("screenShotBtn");
 
-    screenShotBtn.addEventListener("click", function () {
-        createCanvasScreenshot(view);
+    //screenShotBtn.addEventListener("click", function () {
+    //    createCanvasScreenshot(view);
 
-    });
+    //});
 
      var input = document.getElementById("file");
      input.addEventListener("change", function (ev) {
@@ -162,7 +162,7 @@ function createCanvasScreenshot(canvas)
 
     var screen = { "File": obj };
 
-    alert(JSON.stringify(obj));
+    //alert(JSON.stringify(obj));
 
     $.ajax({
         method: "POST",
@@ -171,14 +171,14 @@ function createCanvasScreenshot(canvas)
         dataType: 'JSON',
         contentType: "application/json; charset=utf-8"
     })
-        .done(function (msg) {
-            //alert( "Done [string]: " + msg );
-            var parse_obj = JSON.parse(msg);
-            alert("Done: " + parse_obj.imie);
-        })
-        .fail(function (msg) {
-            alert("Fail [string]: " + msg);
-        });
+        //.done(function (msg) {
+        //    //alert( "Done [string]: " + msg );
+        //    var parse_obj = JSON.parse(msg);
+        //    alert("Done: " + parse_obj.imie);
+        //})
+        //.fail(function (msg) {
+        //    alert("Fail [string]: " + msg);
+        //});
 
 
 
