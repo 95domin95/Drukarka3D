@@ -47,14 +47,38 @@ namespace Drukarka3D.Controllers
             this.fileProvider = fileProvider;
         }
 
+        //public IActionResult Search(string SearchString)
+        //{
+        //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
+        //    .Equals(userManager.GetUserId(HttpContext.User))
+        //    &&(order.Status.Contains(SearchString)
+        //    ||order.UploadDate.ToString().Contains(SearchString)
+        //    ||order.Name.Contains(SearchString)))
+        //    .OrderByDescending(order => order.UploadDate).ToList();
+        //    return RedirectToAction("MyOrders", userOrders);
+        //}
+
         public IActionResult MyOrders()
         {
             ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
-            .Equals(userManager.GetUserId(HttpContext.User))).OrderByDescending(order => order.UploadDate).ToList();
+            .Equals(userManager.GetUserId(HttpContext.User)))
+            .OrderByDescending(order => order.UploadDate).ToList();
             return View(userOrders);
         }
 
-        
+        [HttpPost]
+        public IActionResult MyOrders(string SearchString)
+        {
+            ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
+            .Equals(userManager.GetUserId(HttpContext.User))
+            && (order.Status.Contains(SearchString)
+            || order.UploadDate.ToString().Contains(SearchString)
+            || order.Name.Contains(SearchString)))
+            .OrderByDescending(order => order.UploadDate).ToList();
+            return View(userOrders);
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> UploadImage([FromBody]CanvasScreenshot screen)

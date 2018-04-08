@@ -115,6 +115,36 @@ thead {
     display: none;
 }
 
+.flipkart-navbar-input {
+    padding: 11px 16px;
+    border-radius: 2px 0 0 2px;
+    border: 0 none;
+    outline: 0 none;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+#search-text {
+    padding: 7px 0px 7px 7px;
+    text-align: right;
+    font-size: larger;
+}
+
+.searchBox {
+    box-shadow: 3px 4px 6px 3px hsla(0,0%,80%,.5);
+    height: 43px
+}
+.flipkart-navbar-button {
+    background-color: #f2f2f2;
+    border: 1px solid #f2f2f2;
+    border-radius: 0 2px 2px 0;
+    color: #565656;
+    padding: 10px 0;
+    height: 43px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
 #select-file {
     width: 642px;
     margin-left: auto;
