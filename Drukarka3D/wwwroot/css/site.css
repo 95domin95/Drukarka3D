@@ -10,6 +10,18 @@
         display: block;
     }
 
+.starrr {
+    display: inline-block;
+}
+
+    .starrr a {
+        font-size: 16px;
+        padding: 0 1px;
+        cursor: pointer;
+        color: #FFD119;
+        text-decoration: none;
+    }
+
 footer {
     text-align: center;
     padding: 10px;
@@ -244,6 +256,7 @@ nav {
         list-style-type: none;
         background-color: white;
         border: 1px solid #f2f2f2;
+        border-radius: 0px 0px 0px 10px;
         box-shadow: 3px 3px 3px 3px hsla(0,0%,80%,.5);
     }
 
@@ -257,6 +270,7 @@ nav {
 
     nav:hover > ul {
         display: block;
+        border-radius: 0px 0px 0px 10px;
     }
 
 @media only screen and (max-width: 720px) {

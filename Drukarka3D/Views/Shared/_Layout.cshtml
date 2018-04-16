@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -7,8 +6,12 @@
     <title>@ViewData["Title"]</title>
 
     <environment include="Development">
+
+        <link href="~/css/jquery.rateyo.min.css" rel="stylesheet" />
+        <link href="~/css/fontawesome-stars.css" rel="stylesheet" />
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -24,10 +27,9 @@
             <a href="#" id="menu-icon"></a>
             <ul>
                 @await Html.PartialAsync("_LoginPartial")
+                <li><a href="@Url.Action("ProjectsGallery","Home")">Projekty</a></li>
                 @*<li id="login-icon">@RenderSection("LoginLink", required: false)</li>*@
-                <li><a href="@Url.Action("Login", "Home")">Zaloguj</a></li>
-                <li><a href="@Url.Action("LogOut","Home")">Wyloguj</a></li>
-                <li><a href="@Url.Action("Register","Home")">Rejestracja</a></li>
+
             </ul>
         </nav>
     </header>
@@ -41,13 +43,14 @@
         </footer>
     </div>
 
-        <environment include="Development">
-            <script src="~/lib/jquery/dist/jquery.js"></script>
-            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-            <script src="~/js/site.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r68/three.min.js"></script>
-            <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/TrackballControls.js"></script>
-        </environment>
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.min.js"></script>
+        <script src="~/js/jquery.rateyo.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r68/three.min.js"></script>
+        <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/TrackballControls.js"></script>
+    </environment>
         <environment exclude="Development">
 
             <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"

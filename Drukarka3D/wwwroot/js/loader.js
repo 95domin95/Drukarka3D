@@ -170,7 +170,7 @@ function createCanvasScreenshot(canvas)
         data: JSON.stringify(screen),
         dataType: 'JSON',
         contentType: "application/json; charset=utf-8"
-    })
+    });
         //.done(function (msg) {
         //    //alert( "Done [string]: " + msg );
         //    var parse_obj = JSON.parse(msg);

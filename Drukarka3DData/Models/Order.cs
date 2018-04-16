@@ -15,6 +15,13 @@ namespace Drukarka3DData.Models
         public string Path { get; set; }
         public string Status { get; set; }
         public string UserScreenPath { get; set; }
+        public double Rate { get; set; }
+        public bool Private { get; set; }
+        public int RatingsCount { get; set; }
+
+        public double RatingsSum { get; set; }
+        //[Required]
+        //public double AverageUsersRate { get; set; }
         public DateTime UploadDate { get; set; }
         public ApplicationUser User { get; set; }
     }

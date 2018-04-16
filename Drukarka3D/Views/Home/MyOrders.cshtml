@@ -8,6 +8,40 @@
         $("#select-order").change(function () {
             sortTable();
         });
+
+        //$("#searchPhrase").click(function () {
+        //    if ($("#SearchString").val() == null) $("#SearchString").val("");
+        //});
+
+        //$("#searchPhrase").click(function () {
+        //    var _url = 'UploadImage';
+
+        //    var SearchString = $("#SearchString").val();
+
+        //    var UserName = $("#UserName").val();
+
+        //    var MyProjectsForm = { "UserName": UserName, "SearchString": SearchString };
+
+        //    alert("{Username:" + UserName + ", SearchString:" + SearchString + "}");
+
+        //    $.ajax({
+        //        method: "POST",
+        //        url: _url,
+        //        data: JSON.stringify(MyProjectsForm),
+        //        dataType: 'JSON',
+        //        contentType: "application/json; charset=utf-8"
+        //    })
+        //        .done(function (msg) {
+        //            //alert( "Done [string]: " + msg );
+        //            var parse_obj = JSON.parse(msg);
+        //            alert("Done: " + parse_obj.imie);
+        //        })
+        //        .fail(function (msg) {
+        //            alert("Fail [string]: " + msg);
+        //        });
+        //});
+
+
     }, false);
 
     var sortBy =
@@ -77,24 +111,33 @@
     <h2>Moje projekty</h2>
     <br>
     <div class="flipkart-navbar-search smallsearch col-sm-6 col-xs-11">
-        <div class="row searchBox">
-            <form asp-controller="Home" asp-action="MyOrders">
-                <input class="flipkart-navbar-input col-xs-11" placeholder="Wpisz wyszukiwaną frazę" type="text" name="SearchString">
-                <button class="flipkart-navbar-button col-xs-1">
+        <form asp-controller="Home" asp-action="MyOrders">
+            <div class="row searchBox">
+
+                <input class="flipkart-navbar-input col-xs-11" placeholder="Wpisz wyszukiwaną frazę" type="text" name="SearchString" id="SearchString">
+                <button class="flipkart-navbar-button col-xs-1" id="searchPhrase">
                     <svg width="15px" height="15px">
                         <path d="M11.618 9.897l4.224 4.212c.092.09.1.23.02.312l-1.464 1.46c-.08.08-.222.072-.314-.02L9.868 11.66M6.486 10.9c-2.42 0-4.38-1.955-4.38-4.367 0-2.413 1.96-4.37 4.38-4.37s4.38 1.957 4.38 4.37c0 2.412-1.96 4.368-4.38 4.368m0-10.834C2.904.066 0 2.96 0 6.533 0 10.105 2.904 13 6.486 13s6.487-2.895 6.487-6.467c0-3.572-2.905-6.467-6.487-6.467 "></path>
                     </svg>
                 </button>
-            </form>
-        </div>
+            </div>
+            @*<div class="row searchBox">
+                    <input class="flipkart-navbar-input col-xs-11" placeholder="Podaje nazwę użytkownika" type="text" name="UserName" id="UserName">
+                    <button class="flipkart-navbar-button col-xs-1" id="searchUser">
+                        <svg width="15px" height="15px">
+                            <path d="M11.618 9.897l4.224 4.212c.092.09.1.23.02.312l-1.464 1.46c-.08.08-.222.072-.314-.02L9.868 11.66M6.486 10.9c-2.42 0-4.38-1.955-4.38-4.367 0-2.413 1.96-4.37 4.38-4.37s4.38 1.957 4.38 4.37c0 2.412-1.96 4.368-4.38 4.368m0-10.834C2.904.066 0 2.96 0 6.533 0 10.105 2.904 13 6.486 13s6.487-2.895 6.487-6.467c0-3.572-2.905-6.467-6.487-6.467 "></path>
+                        </svg>
+                    </button>
+                </div>*@
+        </form>
     </div>
     <div id="search-text" class="col-sm-2">
         Sortuj:
     </div>
     <div class="col-sm-2">
         <select id="select-sorting" class="form-control">
-            <option value="1" selected="selected">Data dodania</option>
-            <option value="2">Status</option>
+            <option value="1" selected="selected">dodano</option>
+            <option value="2">status</option>
         </select>
     </div>
     <div class="col-sm-2">
@@ -103,15 +146,16 @@
             <option value="2">malejąco</option>
         </select>
     </div>
-    <table class="table table-hover" id="orders-table">
+    <table class="table table-hover table-striped table-bordered" id="orders-table">
         <thead>
             <tr>
-                <th>Status</th>
-                <th>Data przesłania</th>
-                <th>Pobierz</th>
+                <th class="text-center" scope="col">Status</th>
+                <th class="text-center" scope="col">Data przesłania</th>
+                <th class="text-center" scope="col">Pobierz</th>
             </tr>
         </thead>
         <tbody>
+
             @foreach (var i in Model)
             {
                 <tr>
@@ -122,6 +166,15 @@
                     </td>
                 </tr>
             }
+
+
         </tbody>
     </table>
+    <ul class="pagination pagination-sm">
+        <li><a href="@Url.Action("ProjectsGallery","Home")">1</a></li>
+        <li><a href="@Url.Action("ProjectsGallery","Home")">2</a></li>
+        <li><a href="@Url.Action("ProjectsGallery","Home")">3</a></li>
+        <li><a href="@Url.Action("ProjectsGallery","Home")">4</a></li>
+        <li><a href="@Url.Action("ProjectsGallery","Home")">5</a></li>
+    </ul>
 </div>

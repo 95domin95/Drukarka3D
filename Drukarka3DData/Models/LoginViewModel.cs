@@ -8,7 +8,7 @@ namespace Drukarka3DData.Models
     public class LoginViewModel
     {
         [StringLength(50)]
-        [Display(Name = "Login:")]
+        [Display(Name = "Email:")]
         [Required(ErrorMessage = "Musisz wprowadzić login"), MinLength(6), MaxLength(50)]
         public string Login { get; set; }
 

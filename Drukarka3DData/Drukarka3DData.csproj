@@ -15,6 +15,7 @@
     <Compile Remove="Migrations\20180330132537_EightMigration.cs" />
     <Compile Remove="Migrations\20180330132910_NineMigration.cs" />
     <Compile Remove="Migrations\20180330133137_EightMigration.cs" />
+    <Compile Remove="Migrations\20180415225839_AddRatingMigration.cs" />
   </ItemGroup>
 
   <ItemGroup>

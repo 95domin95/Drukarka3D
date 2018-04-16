@@ -1,0 +1,17 @@
+﻿@model ICollection<Drukarka3DData.Models.Order>
+
+<div class="box">
+    <div class="container">
+        @for(int i=0; i<4; i++)
+        {
+            <div class="row">
+                @foreach(var j in Model)
+                {
+                    <div class="col">
+                        <a asp-action="Download" asp-route-filename="@j.Path"><img src="@j.UserScreenPath" width="100" height="100"></a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

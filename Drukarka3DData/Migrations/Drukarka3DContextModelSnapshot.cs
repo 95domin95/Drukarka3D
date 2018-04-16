@@ -27,6 +27,10 @@ namespace Drukarka3DData.Migrations
 
                     b.Property<int>("AccessFailedCount");
 
+                    b.Property<string>("ApartmentNumber");
+
+                    b.Property<string>("City");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
@@ -38,6 +42,8 @@ namespace Drukarka3DData.Migrations
                     b.Property<bool>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
+
+                    b.Property<string>("Name");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256);
@@ -51,7 +57,13 @@ namespace Drukarka3DData.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
+                    b.Property<string>("PostCode");
+
                     b.Property<string>("SecurityStamp");
+
+                    b.Property<string>("Street");
+
+                    b.Property<string>("Surname");
 
                     b.Property<bool>("TwoFactorEnabled");
 
@@ -79,6 +91,14 @@ namespace Drukarka3DData.Migrations
                     b.Property<string>("Name");
 
                     b.Property<string>("Path");
+
+                    b.Property<bool>("Private");
+
+                    b.Property<double>("Rate");
+
+                    b.Property<int>("RatingsCount");
+
+                    b.Property<double>("RatingsSum");
 
                     b.Property<string>("Status");
 

@@ -12,4 +12,12 @@
     <li>
         <a href="@Url.Action("MyOrders", "Home")">Moje projekty</a>
     </li>
+    <li>
+        <a href="@Url.Action("LogOut","Home")">Wyloguj</a>
+    </li>
+}
+else
+{
+    <li><a href="@Url.Action("Login", "Home")">Zaloguj</a></li>
+    <li><a href="@Url.Action("Register","Home")">Rejestracja</a></li>
 }

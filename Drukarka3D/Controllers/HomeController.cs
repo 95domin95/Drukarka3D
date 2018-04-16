@@ -24,6 +24,19 @@ namespace Drukarka3D.Controllers
         public string File { get; set; }
     }
 
+    public class Rating
+    {
+        public double Rate { get; set; }
+
+        public string Id { get; set; }
+    }
+
+    public class MyProjectsForm
+    {
+        public string UserName { get; set; }
+        public string SearchString { get; set; }
+    }
+
     public class HomeController : Controller
     {
         public string UserScreenPath { get; set; }
@@ -57,28 +70,93 @@ namespace Drukarka3D.Controllers
         //    .OrderByDescending(order => order.UploadDate).ToList();
         //    return RedirectToAction("MyOrders", userOrders);
         //}
+        [HttpPost]
+        public IActionResult UpdateRating([FromBody]Rating rating)
+        {
+            Order userOrder = context.Order.Where(order => order.OrderId
+            .Equals(Convert.ToInt32(rating.Id))).First();
+            //(parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")) + parseFloat(@Model.ElementAt(j).RatingsCount)) / Boolean(@Model.ElementAt(j).RatingsCount.Equals(0)) ? 1 : @Model.ElementAt(j).RatingsCount};),
+            userOrder.RatingsCount += 1;
+            userOrder.RatingsSum += rating.Rate;
+            userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum)/(userOrder.RatingsCount));
+            context.SaveChanges();
+
+            return RedirectToAction("ProjectsGallery");
+        }
+        [HttpPost]
+        public IActionResult ProjectsGallery(string SearchString)
+        {
+            if (SearchString == null) SearchString = String.Empty;
+
+            ICollection<Order> userOrders = context.Order.Where(order =>
+            (order.Status.Contains(SearchString)
+            || order.UploadDate.ToString().Contains(SearchString)
+            || order.Name.Contains(SearchString)
+            || order.User.UserName.Contains(SearchString)))
+            .OrderByDescending(order => order.UploadDate).Take(40).ToList();
+
+            return View(userOrders);
+        }
+        public IActionResult ProjectsGallery()
+        {
+            IEnumerable<Order> newestOrders = context.Order.Where(order => order.Private.Equals(false))
+                .OrderByDescending(order => order.UploadDate).Take(40).ToList();
+
+            return View(newestOrders);
+        }
 
         public IActionResult MyOrders()
         {
-            ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
+
+             ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
             .Equals(userManager.GetUserId(HttpContext.User)))
             .OrderByDescending(order => order.UploadDate).ToList();
+
             return View(userOrders);
         }
 
         [HttpPost]
         public IActionResult MyOrders(string SearchString)
         {
-            ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
-            .Equals(userManager.GetUserId(HttpContext.User))
-            && (order.Status.Contains(SearchString)
+            if (SearchString == null) SearchString = String.Empty;
+
+            ICollection<Order> userOrders = context.Order.Where(order => 
+            (order.Status.Contains(SearchString)
             || order.UploadDate.ToString().Contains(SearchString)
-            || order.Name.Contains(SearchString)))
+            || order.Name.Contains(SearchString)
+            || order.User.UserName.Contains(SearchString)))
             .OrderByDescending(order => order.UploadDate).ToList();
+
             return View(userOrders);
         }
 
+        //public IActionResult MyOrders()
+        //{
+        //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
+        //    .Equals(userManager.GetUserId(HttpContext.User)))
+        //    .OrderByDescending(order => order.UploadDate).ToList();
+        //    return View(userOrders);
+        //}
 
+        //[HttpPost]
+        //public IActionResult MyOrders(string SearchString, string UserName)
+        //{
+        //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
+        //    .Equals(userManager.GetUserId(HttpContext.User))
+        //    && (order.Status.Contains(SearchString)
+        //    || order.UploadDate.ToString().Contains(SearchString)
+        //    || order.Name.Contains(SearchString)))
+        //    .OrderByDescending(order => order.UploadDate).ToList();
+        //    return View(userOrders);
+        //}
+
+        public IActionResult AllOrders()
+        {
+            ICollection<Order> latestOrders = context.Order.Select(order => order)
+            .OrderByDescending(order => order.UploadDate).ToList();
+
+            return View(latestOrders);
+        }
 
         [HttpPost]
         public async Task<IActionResult> UploadImage([FromBody]CanvasScreenshot screen)
@@ -145,8 +223,8 @@ namespace Drukarka3D.Controllers
             }
 
             Order c = context.Order.Where(order => order.User.Id
-.Equals(userManager.GetUserId(HttpContext.User)))
-.OrderByDescending(order => order.UploadDate).First();
+            .Equals(userManager.GetUserId(HttpContext.User)))
+            .OrderByDescending(order => order.UploadDate).First();
 
             Order userOrder = (from p in context.Order
                                where p.UploadDate.Equals(c.UploadDate)
@@ -163,17 +241,31 @@ namespace Drukarka3D.Controllers
                         Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
             DirectoryInfo d = new DirectoryInfo(pathForStl);
 
-            
+            var pathForGCode = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot\\Zatwierdzone\\");
+            DirectoryInfo gcode = new DirectoryInfo(pathForGCode);
+
+            var pathForSlicer = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot\\slic3r\\slic3r\\Slic3r.exe ");
+            DirectoryInfo slicer = new DirectoryInfo(pathForSlicer);
 
             foreach (var i in d.GetFiles("*.stl"))
             {
                 string strCmdText;
-                strCmdText = "/C /wwwroot/slic3r/slic3r/Slic3r-console.exe input --output output";
-                System.Diagnostics.Process.Start("CMD.exe", strCmdText);
+                strCmdText = pathForSlicer + i.Directory+ "\\"+i+" --output "+gcode+i+".gcode";
+
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments = strCmdText;
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit(1000);
+
+                //Process.Start("CMD.exe", strCmdText);
             }
             
-            
-
             return RedirectToAction("Loader");
         }
 
@@ -471,6 +563,12 @@ namespace Drukarka3D.Controllers
             {
                 Username = user.UserName,
                 Email = user.Email,
+                Name = user.Name,
+                Surname = user.Surname,
+                City = user.City,
+                PostCode = user.PostCode,
+                Street = user.Street,
+                ApartmentNumber = user.ApartmentNumber,
                 PhoneNumber = user.PhoneNumber,
                 IsEmailConfirmed = user.EmailConfirmed,
                 StatusMessage = StatusMessage
@@ -502,6 +600,54 @@ namespace Drukarka3D.Controllers
                 {
                     throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
                 }
+            }
+
+            var name = user.Name;
+            if (model.Name != name)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.Name = model.Name;
+                context.SaveChanges();
+            }
+
+            var surname = user.Surname;
+            if (model.Surname != surname)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.Surname = model.Surname;
+                context.SaveChanges();
+            }
+
+            var city = user.City;
+            if (model.City != city)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.City = model.City;
+                context.SaveChanges();
+            }
+
+            var postCode = user.PostCode;
+            if (model.PostCode != postCode)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.PostCode = model.PostCode;
+                context.SaveChanges();
+            }
+
+            var street = user.Street;
+            if (model.Street != street)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.Street = model.Street;
+                context.SaveChanges();
+            }
+
+            var apartmentNumber = user.ApartmentNumber;
+            if (model.ApartmentNumber != apartmentNumber)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.ApartmentNumber = model.ApartmentNumber;
+                context.SaveChanges();
             }
 
             var phoneNumber = user.PhoneNumber;
