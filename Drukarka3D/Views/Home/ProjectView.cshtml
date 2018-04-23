@@ -1,0 +1,131 @@
+﻿@model Drukarka3DData.Models.Order
+
+<environment include="Development">
+    <script src="~/js/stl.js"></script>
+</environment>
+
+<div class="box">
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>@Model.Name</h2>
+        </div>
+        <div class="col-sm-12">
+            <div id="projectView"></div>
+        </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="@Model.OrderId" style="margin: auto"></div>
+            <script>
+                window.addEventListener("load", function () {
+                    "use strict";
+
+                    $("#@Model.OrderId").rateYo({
+                        rating: parseFloat(@Model.Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Rate.ToString().Replace(",", ".")),
+                        onSet: function (rating, rateYoInstance) {
+
+                            var data = { "Rate": rating, "Id": @Model.OrderId.ToString() };
+
+                            $.ajax({
+                                type: 'POST',
+                                url: 'UpdateRating',
+                                data: JSON.stringify(data),
+                                dataType: 'JSON',
+                                contentType: "application/json; charset=utf-8"
+                            });
+                        }
+                    });
+
+                    var w = 640, h = 480;
+
+                    var renderer = new THREE.WebGLRenderer({
+                        preserveDrawingBuffer: true
+                    });
+
+                    renderer.setSize(w, h);
+                    var view = document.getElementById("projectView");
+                    view.appendChild(renderer.domElement);
+
+                    var camera = new THREE.PerspectiveCamera(45, w / h, 1, 1000);
+                    camera.position.set(0, 0, 50);
+                    var controls = new THREE.TrackballControls(camera, view);
+
+                    var scene = new THREE.Scene();
+                    scene.add(new THREE.AmbientLight(0x666666));
+
+                    var light1 = new THREE.DirectionalLight(0xffffff);
+                    light1.position.set(0, 100, 100);
+                    scene.add(light1);
+
+                    var light2 = new THREE.DirectionalLight(0xffffff);
+                    light2.position.set(0, -100, -100);
+                    scene.add(light2);
+
+                    var mat = new THREE.MeshPhongMaterial({
+                        color: 0x339900, ambient: 0x339900, specular: 0x030303
+                    });
+                    var obj = new THREE.Mesh(new THREE.Geometry(), mat);
+                    scene.add(obj);
+
+                    var loop = function loop() {
+                        requestAnimationFrame(loop);
+                        //obj.rotation.z += 0.05;
+                        controls.update();
+                        renderer.clear();
+                        renderer.render(scene, camera);
+                    };
+
+                    loop();
+
+                    // file load
+                    var openFile = function (file) {
+                        var reader = new FileReader();
+                        reader.addEventListener("load", function (ev) {
+                            var buffer = ev.target.result;
+                            var geom = loadStl(buffer);
+                            scene.remove(obj);
+                            obj = new THREE.Mesh(geom, mat);
+                            scene.add(obj);
+                        }, false);
+                        reader.readAsArrayBuffer(file);
+                    };
+
+                    (function () {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', '/DoZatwierdzenia/@Model.Path', true);
+                         xhr.responseType = 'blob';
+
+                         xhr.onload = function (e) {
+                             if (this.status == 200) {
+                                 // get binary data as a response
+                                 var blob = this.response;
+                                 openFile(blob);
+                             }
+                         };
+
+                         xhr.send();
+
+                    })();
+
+                    }, false);
+
+                    function checkForValidFileExtension(elemVal) {
+                        var fp = elemVal;
+                        if (fp.indexOf('.') === -1)
+                            return false;
+
+                        var allowedExts = new Array("stl");
+                        var ext = fp.substring(fp.lastIndexOf('.') + 1).
+                            toLowerCase();
+
+                        for (var i = 0; i < allowedExts.length; i++) {
+                            if (ext === allowedExts[i]) return true;
+                        }
+
+                        return false;
+                    }
+
+
+            </script>
+        </div>
+    </div>
+</div>

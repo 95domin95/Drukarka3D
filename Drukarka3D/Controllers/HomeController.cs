@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Drukarka3D.Models;
 using Drukarka3DData.Models;
 using Drukarka3DData;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +18,16 @@ using Drukarka3D.Services;
 
 namespace Drukarka3D.Controllers
 {
+    //enum SortingOrder
+    //{
+    //    Ascending  = 1,
+    //    Descending = 2
+    //}
+    //enum SortingType
+    //{
+    //    ByDate = 1,
+    //    ByStatus = 2
+    //}
     public class CanvasScreenshot
     {
         public string File { get; set; }
@@ -35,6 +44,16 @@ namespace Drukarka3D.Controllers
     {
         public string UserName { get; set; }
         public string SearchString { get; set; }
+    }
+
+    public class ProjectViewForm
+    {
+        public string PageNumber { get; set; }
+        public string SearchString { get; set; }
+        public string NumberOfResolutsInPage { get; set; }
+        public string SortingType { get; set; }
+        public string SortingOrder { get; set; }
+
     }
 
     public class HomeController : Controller
@@ -70,6 +89,49 @@ namespace Drukarka3D.Controllers
         //    .OrderByDescending(order => order.UploadDate).ToList();
         //    return RedirectToAction("MyOrders", userOrders);
         //}
+
+        //public IActionResult ProjectView(Order order)
+        //{
+        //    return View(order);         
+        //}
+
+        [HttpPost]
+        public IActionResult ProjectView(IFormCollection param)
+        {
+            //try
+            //{
+
+            //int t = Convert.ToInt32(param.First());
+            var g = param.First();
+
+            var b = param.ElementAt(0).Value;
+            var c = param.Keys.ToArray()[0];
+
+            
+            char [] temp = { param.Keys.ElementAt(0)[0], param.Keys.ElementAt(0)[1] };
+            var tmp = new String(temp);
+
+            Order order = context.Order.Where(o => o
+            .OrderId.Equals(Convert.ToInt32(tmp))).First();
+
+            if (order == null) throw new NullReferenceException();
+
+            //await Response.WriteAsync("<script>alert('" +order.OrderId + "');</script>");
+
+            return View(order);
+            //}
+            //catch(Exception e)
+            //{
+            //    return Error();
+            //}           
+        }
+
+        [HttpPost]
+        public IActionResult Test([FromBody]ProjectViewForm projectViewForm)
+        {
+            return Json(projectViewForm);
+        }
+
         [HttpPost]
         public IActionResult UpdateRating([FromBody]Rating rating)
         {
@@ -84,25 +146,82 @@ namespace Drukarka3D.Controllers
             return RedirectToAction("ProjectsGallery");
         }
         [HttpPost]
-        public IActionResult ProjectsGallery(string SearchString)
+        public IActionResult ProjectsGallery(string SearchString, string SortingOrder, string SortingType, int PageNumber, string NumberOfResolutsInPage)
         {
             if (SearchString == null) SearchString = String.Empty;
+            if (SortingOrder == null) SortingOrder = "1";
+            if (SortingType == null) SortingType = "1";
+            if (NumberOfResolutsInPage == null) NumberOfResolutsInPage = "0";
 
             ICollection<Order> userOrders = context.Order.Where(order =>
             (order.Status.Contains(SearchString)
             || order.UploadDate.ToString().Contains(SearchString)
             || order.Name.Contains(SearchString)
-            || order.User.UserName.Contains(SearchString)))
-            .OrderByDescending(order => order.UploadDate).Take(40).ToList();
+            || order.User.UserName.Contains(SearchString))).ToList();
 
-            return View(userOrders);
+            
+
+            if (SortingOrder.Equals("1"))
+            {
+                if(SortingType.Equals("1"))
+                {
+                    userOrders.OrderBy(order => order.UploadDate).ToList();
+                }
+                else
+                {
+                    userOrders.OrderBy(order => order.Status).ToList();
+                }
+            }
+            else
+            {
+                if (SortingType.Equals("1"))
+                {
+                    userOrders.OrderByDescending(order => order.UploadDate).ToList();
+                }
+                else
+                {
+                    userOrders.OrderByDescending(order => order.Status).ToList();
+                }
+            }
+
+            ICollection<OrderViewModel> ovm = new List<OrderViewModel>();
+
+            foreach(var i in userOrders)
+            {
+                ovm.Add(new OrderViewModel()
+                {
+                    NumberOfResolutsInPage = Convert.ToInt32(NumberOfResolutsInPage),
+                    PageNumber = PageNumber,
+                    SortingType = SortingType,
+                    SearchString = SearchString,
+                    SortingOrder = SortingOrder,
+                    Order = i
+                });
+            }
+
+            return View(ovm);
         }
         public IActionResult ProjectsGallery()
         {
             IEnumerable<Order> newestOrders = context.Order.Where(order => order.Private.Equals(false))
-                .OrderByDescending(order => order.UploadDate).Take(40).ToList();
+                .OrderByDescending(order => order.UploadDate).ToList();
 
-            return View(newestOrders);
+            ICollection<OrderViewModel> ovm = new List<OrderViewModel>();
+
+            foreach (var i in newestOrders)
+            {
+                ovm.Add(new OrderViewModel()
+                {
+                    NumberOfResolutsInPage = 18,
+                    PageNumber = 1,
+                    SortingType = "1",
+                    SearchString = "",
+                    SortingOrder = "1",
+                    Order = i
+                });
+            }
+
+            return View(ovm);
         }
 
         public IActionResult MyOrders()
@@ -238,7 +357,7 @@ namespace Drukarka3D.Controllers
             context.SaveChanges();
 
             var pathForStl = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
+            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
             DirectoryInfo d = new DirectoryInfo(pathForStl);
 
             var pathForGCode = Path.Combine(

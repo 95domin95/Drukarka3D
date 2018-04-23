@@ -1,6 +1,6 @@
 using System;
 
-namespace Drukarka3D.Models
+namespace Drukarka3DData.Models
 {
     public class ErrorViewModel
     {

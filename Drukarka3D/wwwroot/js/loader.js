@@ -82,6 +82,7 @@ window.addEventListener("load", function () {
      var input = document.getElementById("file");
      input.addEventListener("change", function (ev) {
          var file = ev.target.files[0];
+         alert(file);
          if (checkForValidFileExtension(file.name)) openFile(file);
          else alert("Plik musi mieć rozszerzenie stl.");
      }, false);

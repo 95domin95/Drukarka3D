@@ -10,6 +10,14 @@
         display: block;
     }
 
+
+.project-gallery-imagebtn {
+    width: 250px; /*as per your wish*/
+    height: 250px; /*as per your wish*/
+    border: 0;
+    background-size: 250px 250px;
+}
+
 .starrr {
     display: inline-block;
 }
@@ -161,6 +169,15 @@ thead {
     width: 642px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#projectView {
+    margin-left: auto;
+    margin-right: auto;
+    border: solid 1px;
+    height: 482px;
+    width: 642px;
+    border-radius: 5px;
 }
 
 #view {

@@ -18,7 +18,6 @@ namespace Drukarka3DData.Models
         public double Rate { get; set; }
         public bool Private { get; set; }
         public int RatingsCount { get; set; }
-
         public double RatingsSum { get; set; }
         //[Required]
         //public double AverageUsersRate { get; set; }
