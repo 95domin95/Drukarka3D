@@ -22,16 +22,6 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Drukarka3D.Controllers
 {
-    //enum SortingOrder
-    //{
-    //    Ascending  = 1,
-    //    Descending = 2
-    //}
-    //enum SortingType
-    //{
-    //    ByDate = 1,
-    //    ByStatus = 2
-    //}
     public class CanvasScreenshot
     {
         public string File { get; set; }
@@ -57,7 +47,6 @@ namespace Drukarka3D.Controllers
         public string NumberOfResolutsInPage { get; set; }
         public string SortingType { get; set; }
         public string SortingOrder { get; set; }
-
     }
 
     public class HomeController : Controller
@@ -113,22 +102,6 @@ namespace Drukarka3D.Controllers
             response.Close();
         }
 
-        //public IActionResult Search(string SearchString)
-        //{
-        //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
-        //    .Equals(userManager.GetUserId(HttpContext.User))
-        //    &&(order.Status.Contains(SearchString)
-        //    ||order.UploadDate.ToString().Contains(SearchString)
-        //    ||order.Name.Contains(SearchString)))
-        //    .OrderByDescending(order => order.UploadDate).ToList();
-        //    return RedirectToAction("MyOrders", userOrders);
-        //}
-
-        //public IActionResult ProjectView(Order order)
-        //{
-        //    return View(order);         
-        //}
-
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
         {
@@ -155,17 +128,8 @@ namespace Drukarka3D.Controllers
             {
                 return Error();
             }
-}
+        }
 
-        //[HttpPost]
-        //public IActionResult Test([FromBody]ProjectViewForm projectViewForm)
-        //{
-        //    //ViewData["PageNumber"] = projectViewForm.PageNumber;
-        //    //ViewBag.PageNumber = projectViewForm.PageNumber;
-
-        //    ProjectsGallery(projectViewForm.SearchString, projectViewForm.SortingOrder, projectViewForm.SortingType, Convert.ToInt32(projectViewForm.PageNumber), projectViewForm.NumberOfResolutsInPage);
-        //    return Json(projectViewForm);
-        //}
 
         [HttpPost]
         public IActionResult UpdateRating([FromBody]Rating rating)
@@ -181,89 +145,22 @@ namespace Drukarka3D.Controllers
             return RedirectToAction("ProjectsGallery");
         }
 
-        //[HttpPost]
-        //public IActionResult ProjectsGallery(IFormCollection param, string SearchString, string SortingOrder, string SortingType, int PageNumber, string NumberOfResolutsInPage)
-        //{
-        //    if (SearchString == null) SearchString = String.Empty;
-        //    if (SortingOrder == null) SortingOrder = "1";
-        //    if (SortingType == null) SortingType = "1";
-        //    if (NumberOfResolutsInPage == null) NumberOfResolutsInPage = "0";
-        //    if (PageNumber == 0) PageNumber = 1;
-        //    int elToSkip = PageNumber * Convert.ToInt32(NumberOfResolutsInPage);
-        //    int onPage = Convert.ToInt32(NumberOfResolutsInPage);
-
-        //    int max = context.Order.Where(order =>
-        //    (order.Status.Contains(SearchString)
-        //    || order.UploadDate.ToString().Contains(SearchString)
-        //    || order.Name.Contains(SearchString)
-        //    || order.User.UserName.Contains(SearchString))).ToList().Count;
-
-        //    ICollection<Order> userOrders = context.Order.Where(order =>
-        //    (order.Status.Contains(SearchString)
-        //    || order.UploadDate.ToString().Contains(SearchString)
-        //    || order.Name.Contains(SearchString)
-        //    || order.User.UserName.Contains(SearchString)))
-        //    .Skip(elToSkip)
-        //    .Take(elToSkip + onPage >= max ? (max - elToSkip) : onPage)
-        //    .ToList();
-
-        //    if (SortingOrder.Equals("1"))
-        //    {
-        //        if(SortingType.Equals("1"))
-        //        {
-        //            userOrders.OrderBy(order => order.UploadDate).ToList();
-        //        }
-        //        else
-        //        {
-        //            userOrders.OrderBy(order => order.Status).ToList();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (SortingType.Equals("1"))
-        //        {
-        //            userOrders.OrderByDescending(order => order.UploadDate).ToList();
-        //        }
-        //        else
-        //        {
-        //            userOrders.OrderByDescending(order => order.Status).ToList();
-        //        }
-        //    }
-
-        //    return View(new OrderViewModel()
-        //    {
-        //        NumberOfResolutsInPage = Convert.ToInt32(NumberOfResolutsInPage),
-        //        PageNumber = PageNumber,
-        //        SortingType = SortingType,
-        //        SearchString = SearchString,
-        //        SortingOrder = SortingOrder,
-        //        Order = userOrders
-        //    });
-        //}
-        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status", string sortOrder="asc", int onPage=20)
+        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status")
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
             .OrderBy(order => order.UploadDate).AsQueryable();
-
-            if (sortOrder.Equals("desc"))
-            {
-                newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
-                .OrderByDescending(order => order.UploadDate).AsQueryable();
-            }
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
                 newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
             }
 
-            var model = await PagingList.CreateAsync(newestOrders, onPage, page, sortExpression, "Status");
+            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");
 
             model.RouteValue = new RouteValueDictionary
             {
                 { "filter", filter}
             };
-
-
 
             return View(model);
         }
@@ -292,26 +189,6 @@ namespace Drukarka3D.Controllers
 
             return View(userOrders);
         }
-
-        //public IActionResult MyOrders()
-        //{
-        //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
-        //    .Equals(userManager.GetUserId(HttpContext.User)))
-        //    .OrderByDescending(order => order.UploadDate).ToList();
-        //    return View(userOrders);
-        //}
-
-        //[HttpPost]
-        //public IActionResult MyOrders(string SearchString, string UserName)
-        //{
-        //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
-        //    .Equals(userManager.GetUserId(HttpContext.User))
-        //    && (order.Status.Contains(SearchString)
-        //    || order.UploadDate.ToString().Contains(SearchString)
-        //    || order.Name.Contains(SearchString)))
-        //    .OrderByDescending(order => order.UploadDate).ToList();
-        //    return View(userOrders);
-        //}
 
         public IActionResult AllOrders()
         {
@@ -435,14 +312,6 @@ namespace Drukarka3D.Controllers
             return RedirectToAction("Loader");
         }
 
-        //[HttpPost]
-        //[Authorize]
-        //public IActionResult Loader(Order userOrder)
-        //{
-
-        //    return View();
-        //}
-
 
         [HttpPost]
         public async Task<IActionResult> UploadFiles(List<IFormFile> files)
@@ -558,7 +427,7 @@ namespace Drukarka3D.Controllers
                 ViewData["Title"] = "Strona Główna";
                 return View();
             }
-            else return RedirectToAction("Login","Home");
+            else return RedirectToAction("Index","Home");
 
         }
 
@@ -582,7 +451,7 @@ namespace Drukarka3D.Controllers
                 var result = await signInManager.PasswordSignInAsync(vm.Login, vm.Password, vm.RememberMe, false);
                 if(result.Succeeded)
                 {
-                    return RedirectToAction("Loader","Home");
+                    return RedirectToAction("Index","Home");
                 }
                 ModelState.AddModelError("", "Invalid Login Attempt.");
                 return View(vm);
@@ -608,7 +477,7 @@ namespace Drukarka3D.Controllers
                 if(result.Succeeded)
                 {
                     await signInManager.SignInAsync(user, false);
-                    return RedirectToAction("Loader","Home");
+                    return RedirectToAction("Index","Home");
                 }
                 else
                 {
