@@ -1,7 +1,14 @@
 window.addEventListener("load", function () {
     "use strict";
-    
-    var w = 640, h = 480;
+
+    $("#view").css("width", function () {
+        return $(window).width() * 0.7;
+    });
+    $("#view").css("height", function () {
+        return $(window).width() * 0.4;
+    });
+
+    var w = $(window).width() * 0.7, h = $(window).width() * 0.4;
     
     var renderer = new THREE.WebGLRenderer({
         preserveDrawingBuffer: true

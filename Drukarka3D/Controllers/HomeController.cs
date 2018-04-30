@@ -18,6 +18,7 @@ using Drukarka3D.Services;
 using System.Net;
 using System.Text;
 using ReflectionIT.Mvc.Paging;
+using Microsoft.AspNetCore.Routing;
 
 namespace Drukarka3D.Controllers
 {
@@ -239,12 +240,22 @@ namespace Drukarka3D.Controllers
         //        Order = userOrders
         //    });
         //}
-        public async Task<IActionResult> Index(int page=1)
+        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "UploadDate")
         {
             var newestOrders = context.Order.Where(order => order.Private.Equals(false))
-                .OrderByDescending(order => order.UploadDate);
+                .OrderByDescending(order => order.UploadDate).AsQueryable();
 
-            var model = await PagingList.CreateAsync(newestOrders, 10, page);
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
+            }
+
+            var model = await PagingList.CreateAsync(newestOrders, 10, page, sortExpression, "");
+
+            model.RouteValue = new RouteValueDictionary
+            {
+                { filter, "filter"}
+            };
 
             return View(model);
         }
@@ -348,7 +359,7 @@ namespace Drukarka3D.Controllers
 
         [HttpPost]
         [RequestSizeLimit(100_000_000)]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(IFormFile file, string isPrivate)
         {
             if (file == null || file.Length == 0)
             {
@@ -374,10 +385,13 @@ namespace Drukarka3D.Controllers
                                where p.UploadDate.Equals(c.UploadDate)
                                select p).SingleOrDefault();
 
+            if (isPrivate == null) isPrivate = String.Empty;
+
             if (userOrder != null)
             {
                 userOrder.Name = file.GetFilename();
                 userOrder.Path = file.GetFilename();
+                userOrder.Private = isPrivate.Equals(String.Empty);
             }
             context.SaveChanges();
 
@@ -385,7 +399,7 @@ namespace Drukarka3D.Controllers
             Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
             DirectoryInfo d = new DirectoryInfo(pathForStl);
 
-            ForwardFiles(pathForStl);
+            //ForwardFiles(pathForStl);
 
             //var pathForGCode = Path.Combine(
             //Directory.GetCurrentDirectory(), "wwwroot\\Zatwierdzone\\");

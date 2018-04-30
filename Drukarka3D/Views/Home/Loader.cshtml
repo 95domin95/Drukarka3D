@@ -15,7 +15,7 @@
 
 @*<button type="submit" class="btn btn-default" id="screenShotBtn">Screen</button>*@
 <form asp-controller="Home" asp-action="UploadFile" method="post" enctype="multipart/form-data" style="margin-top:5px">
-
+    <label>Projekt publiczny: <input type="checkbox" name="isPrivate" checked/></label>
     <label class="btn btn-default btn-file">Wybierz plik<input type="file" name="file" id="file" /></label>
     <button type="submit" class="btn btn-default" id="confirm">Wyślij</button>
 </form>
