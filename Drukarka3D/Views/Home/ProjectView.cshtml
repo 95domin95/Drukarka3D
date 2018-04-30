@@ -5,7 +5,6 @@
 </environment>
 
 <div class="box">
-    @await Html.PartialAsync("_ProjectViewPartial")
     <div class="row">
         <div class="col-sm-12">
             <div id="projectView"></div>
@@ -134,6 +133,7 @@
 
         </div>
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
-        <div class="col-sm-12" style="margin-bottom: 10px"><button class="btn btn-default" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
+        <div class="col-xs-6 col-sm-6" style="margin-bottom: 10px; text-align: right;"><button class="btn btn-default" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
+        @await Html.PartialAsync("_ProjectViewPartial")
     </div>
 </div>

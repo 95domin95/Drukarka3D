@@ -48,6 +48,19 @@ footer {
     padding: 10px;
 }
 
+.gallery-from-inputs {
+    padding: 7px 0px 7px 7px;
+    text-align: right;
+    font-size: larger;
+}
+
+#gallery-filter-menu {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    background-color: lightcyan;
+    border-radius: 7px;
+}
+
 canvas {
     border-radius: 3px;
 }

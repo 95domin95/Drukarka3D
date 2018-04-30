@@ -240,22 +240,30 @@ namespace Drukarka3D.Controllers
         //        Order = userOrders
         //    });
         //}
-        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "UploadDate")
+        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status", string sortOrder="asc", int onPage=20)
         {
-            var newestOrders = context.Order.Where(order => order.Private.Equals(false))
+            var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
+            .OrderBy(order => order.UploadDate).AsQueryable();
+
+            if (sortOrder.Equals("desc"))
+            {
+                newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
                 .OrderByDescending(order => order.UploadDate).AsQueryable();
+            }
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
                 newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
             }
 
-            var model = await PagingList.CreateAsync(newestOrders, 10, page, sortExpression, "");
+            var model = await PagingList.CreateAsync(newestOrders, onPage, page, sortExpression, "Status");
 
             model.RouteValue = new RouteValueDictionary
             {
-                { filter, "filter"}
+                { "filter", filter}
             };
+
+
 
             return View(model);
         }
@@ -359,7 +367,7 @@ namespace Drukarka3D.Controllers
 
         [HttpPost]
         [RequestSizeLimit(100_000_000)]
-        public async Task<IActionResult> UploadFile(IFormFile file, string isPrivate)
+        public async Task<IActionResult> UploadFile(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -385,13 +393,11 @@ namespace Drukarka3D.Controllers
                                where p.UploadDate.Equals(c.UploadDate)
                                select p).SingleOrDefault();
 
-            if (isPrivate == null) isPrivate = String.Empty;
 
             if (userOrder != null)
             {
                 userOrder.Name = file.GetFilename();
                 userOrder.Path = file.GetFilename();
-                userOrder.Private = isPrivate.Equals(String.Empty);
             }
             context.SaveChanges();
 
