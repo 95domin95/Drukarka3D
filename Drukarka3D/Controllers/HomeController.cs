@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Drukarka3D.Services;
+using System.Net;
+using System.Text;
+using ReflectionIT.Mvc.Paging;
 
 namespace Drukarka3D.Controllers
 {
@@ -79,6 +82,36 @@ namespace Drukarka3D.Controllers
             this.fileProvider = fileProvider;
         }
 
+        public void ForwardFiles(string pathForStl)
+        {
+            var adressFTP = "http://192.168.43.155:5000:23";
+            var usrNameFTP = "drukarka";
+            var passwordFTP = "ZAQ!2wsx";
+
+            // Get the object used to communicate with the server.  
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(adressFTP);
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+
+            // This example assumes the FTP site uses anonymous logon.  
+            request.Credentials = new NetworkCredential(usrNameFTP, passwordFTP);
+
+            // Copy the contents of the file to the request stream.  
+            StreamReader sourceStream = new StreamReader(pathForStl);
+            byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+            sourceStream.Close();
+            request.ContentLength = fileContents.Length;
+
+            Stream requestStream = request.GetRequestStream();
+            requestStream.Write(fileContents, 0, fileContents.Length);
+            requestStream.Close();
+
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+            Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);
+
+            response.Close();
+        }
+
         //public IActionResult Search(string SearchString)
         //{
         //    ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
@@ -98,39 +131,40 @@ namespace Drukarka3D.Controllers
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
         {
-            //try
-            //{
+            try
+            {
+                string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length-2);
 
-            //int t = Convert.ToInt32(param.First());
-            var g = param.First();
+                ICollection<Order> order = context.Order.Where(o => o
+                .OrderId.Equals(Convert.ToInt32(tmp))).ToList();
 
-            var b = param.ElementAt(0).Value;
-            var c = param.Keys.ToArray()[0];
+                if (order == null) throw new NullReferenceException();
 
-            
-            char [] temp = { param.Keys.ElementAt(0)[0], param.Keys.ElementAt(0)[1] };
-            var tmp = new String(temp);
+                return View(new OrderViewModel()
+                {
+                    NumberOfResolutsInPage = 0,
+                    PageNumber = 1,
+                    SortingType = String.Empty,
+                    SearchString = String.Empty,
+                    SortingOrder = String.Empty,
+                    Order = order
+                });
+            }
+            catch(Exception)
+            {
+                return Error();
+            }
+}
 
-            Order order = context.Order.Where(o => o
-            .OrderId.Equals(Convert.ToInt32(tmp))).First();
+        //[HttpPost]
+        //public IActionResult Test([FromBody]ProjectViewForm projectViewForm)
+        //{
+        //    //ViewData["PageNumber"] = projectViewForm.PageNumber;
+        //    //ViewBag.PageNumber = projectViewForm.PageNumber;
 
-            if (order == null) throw new NullReferenceException();
-
-            //await Response.WriteAsync("<script>alert('" +order.OrderId + "');</script>");
-
-            return View(order);
-            //}
-            //catch(Exception e)
-            //{
-            //    return Error();
-            //}           
-        }
-
-        [HttpPost]
-        public IActionResult Test([FromBody]ProjectViewForm projectViewForm)
-        {
-            return Json(projectViewForm);
-        }
+        //    ProjectsGallery(projectViewForm.SearchString, projectViewForm.SortingOrder, projectViewForm.SortingType, Convert.ToInt32(projectViewForm.PageNumber), projectViewForm.NumberOfResolutsInPage);
+        //    return Json(projectViewForm);
+        //}
 
         [HttpPost]
         public IActionResult UpdateRating([FromBody]Rating rating)
@@ -145,83 +179,74 @@ namespace Drukarka3D.Controllers
 
             return RedirectToAction("ProjectsGallery");
         }
-        [HttpPost]
-        public IActionResult ProjectsGallery(string SearchString, string SortingOrder, string SortingType, int PageNumber, string NumberOfResolutsInPage)
+
+        //[HttpPost]
+        //public IActionResult ProjectsGallery(IFormCollection param, string SearchString, string SortingOrder, string SortingType, int PageNumber, string NumberOfResolutsInPage)
+        //{
+        //    if (SearchString == null) SearchString = String.Empty;
+        //    if (SortingOrder == null) SortingOrder = "1";
+        //    if (SortingType == null) SortingType = "1";
+        //    if (NumberOfResolutsInPage == null) NumberOfResolutsInPage = "0";
+        //    if (PageNumber == 0) PageNumber = 1;
+        //    int elToSkip = PageNumber * Convert.ToInt32(NumberOfResolutsInPage);
+        //    int onPage = Convert.ToInt32(NumberOfResolutsInPage);
+
+        //    int max = context.Order.Where(order =>
+        //    (order.Status.Contains(SearchString)
+        //    || order.UploadDate.ToString().Contains(SearchString)
+        //    || order.Name.Contains(SearchString)
+        //    || order.User.UserName.Contains(SearchString))).ToList().Count;
+
+        //    ICollection<Order> userOrders = context.Order.Where(order =>
+        //    (order.Status.Contains(SearchString)
+        //    || order.UploadDate.ToString().Contains(SearchString)
+        //    || order.Name.Contains(SearchString)
+        //    || order.User.UserName.Contains(SearchString)))
+        //    .Skip(elToSkip)
+        //    .Take(elToSkip + onPage >= max ? (max - elToSkip) : onPage)
+        //    .ToList();
+
+        //    if (SortingOrder.Equals("1"))
+        //    {
+        //        if(SortingType.Equals("1"))
+        //        {
+        //            userOrders.OrderBy(order => order.UploadDate).ToList();
+        //        }
+        //        else
+        //        {
+        //            userOrders.OrderBy(order => order.Status).ToList();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (SortingType.Equals("1"))
+        //        {
+        //            userOrders.OrderByDescending(order => order.UploadDate).ToList();
+        //        }
+        //        else
+        //        {
+        //            userOrders.OrderByDescending(order => order.Status).ToList();
+        //        }
+        //    }
+
+        //    return View(new OrderViewModel()
+        //    {
+        //        NumberOfResolutsInPage = Convert.ToInt32(NumberOfResolutsInPage),
+        //        PageNumber = PageNumber,
+        //        SortingType = SortingType,
+        //        SearchString = SearchString,
+        //        SortingOrder = SortingOrder,
+        //        Order = userOrders
+        //    });
+        //}
+        public async Task<IActionResult> Index(int page=1)
         {
-            if (SearchString == null) SearchString = String.Empty;
-            if (SortingOrder == null) SortingOrder = "1";
-            if (SortingType == null) SortingType = "1";
-            if (NumberOfResolutsInPage == null) NumberOfResolutsInPage = "0";
+            var newestOrders = context.Order.Where(order => order.Private.Equals(false))
+                .OrderByDescending(order => order.UploadDate);
 
-            ICollection<Order> userOrders = context.Order.Where(order =>
-            (order.Status.Contains(SearchString)
-            || order.UploadDate.ToString().Contains(SearchString)
-            || order.Name.Contains(SearchString)
-            || order.User.UserName.Contains(SearchString))).ToList();
+            var model = await PagingList.CreateAsync(newestOrders, 10, page);
 
-            
-
-            if (SortingOrder.Equals("1"))
-            {
-                if(SortingType.Equals("1"))
-                {
-                    userOrders.OrderBy(order => order.UploadDate).ToList();
-                }
-                else
-                {
-                    userOrders.OrderBy(order => order.Status).ToList();
-                }
-            }
-            else
-            {
-                if (SortingType.Equals("1"))
-                {
-                    userOrders.OrderByDescending(order => order.UploadDate).ToList();
-                }
-                else
-                {
-                    userOrders.OrderByDescending(order => order.Status).ToList();
-                }
-            }
-
-            ICollection<OrderViewModel> ovm = new List<OrderViewModel>();
-
-            foreach(var i in userOrders)
-            {
-                ovm.Add(new OrderViewModel()
-                {
-                    NumberOfResolutsInPage = Convert.ToInt32(NumberOfResolutsInPage),
-                    PageNumber = PageNumber,
-                    SortingType = SortingType,
-                    SearchString = SearchString,
-                    SortingOrder = SortingOrder,
-                    Order = i
-                });
-            }
-
-            return View(ovm);
-        }
-        public IActionResult ProjectsGallery()
-        {
-            IEnumerable<Order> newestOrders = context.Order.Where(order => order.Private.Equals(false))
-                .OrderByDescending(order => order.UploadDate).ToList();
-
-            ICollection<OrderViewModel> ovm = new List<OrderViewModel>();
-
-            foreach (var i in newestOrders)
-            {
-                ovm.Add(new OrderViewModel()
-                {
-                    NumberOfResolutsInPage = 18,
-                    PageNumber = 1,
-                    SortingType = "1",
-                    SearchString = "",
-                    SortingOrder = "1",
-                    Order = i
-                });
-            }
-
-            return View(ovm);
+            return View(model);
         }
 
         public IActionResult MyOrders()
@@ -360,31 +385,33 @@ namespace Drukarka3D.Controllers
             Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
             DirectoryInfo d = new DirectoryInfo(pathForStl);
 
-            var pathForGCode = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot\\Zatwierdzone\\");
-            DirectoryInfo gcode = new DirectoryInfo(pathForGCode);
+            ForwardFiles(pathForStl);
 
-            var pathForSlicer = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot\\slic3r\\slic3r\\Slic3r.exe ");
-            DirectoryInfo slicer = new DirectoryInfo(pathForSlicer);
+            //var pathForGCode = Path.Combine(
+            //Directory.GetCurrentDirectory(), "wwwroot\\Zatwierdzone\\");
+            //DirectoryInfo gcode = new DirectoryInfo(pathForGCode);
 
-            foreach (var i in d.GetFiles("*.stl"))
-            {
-                string strCmdText;
-                strCmdText = pathForSlicer + i.Directory+ "\\"+i+" --output "+gcode+i+".gcode";
+            //var pathForSlicer = Path.Combine(
+            //Directory.GetCurrentDirectory(), "wwwroot\\slic3r\\slic3r\\Slic3r.exe ");
+            //DirectoryInfo slicer = new DirectoryInfo(pathForSlicer);
 
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = strCmdText;
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit(1000);
+            //foreach (var i in d.GetFiles("*.stl"))
+            //{
+            //    string strCmdText;
+            //    strCmdText = pathForSlicer + i.Directory+ "\\"+i+" --output "+gcode+i+".gcode";
 
-                //Process.Start("CMD.exe", strCmdText);
-            }
-            
+            //    System.Diagnostics.Process process = new System.Diagnostics.Process();
+            //    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            //    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            //    startInfo.FileName = "cmd.exe";
+            //    startInfo.Arguments = strCmdText;
+            //    process.StartInfo = startInfo;
+            //    process.Start();
+            //    process.WaitForExit(1000);
+
+            //    //Process.Start("CMD.exe", strCmdText);
+            //}
+
             return RedirectToAction("Loader");
         }
 
@@ -813,11 +840,6 @@ namespace Drukarka3D.Controllers
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-        }
-
-        public IActionResult Index()
-        {
-            return View();
         }
 
         public IActionResult Error()

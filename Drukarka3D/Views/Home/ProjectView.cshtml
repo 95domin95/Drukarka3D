@@ -1,4 +1,4 @@
-﻿@model Drukarka3DData.Models.Order
+﻿@model Drukarka3DData.Models.OrderViewModel
 
 <environment include="Development">
     <script src="~/js/stl.js"></script>
@@ -7,23 +7,23 @@
 <div class="box">
     <div class="row">
         <div class="col-sm-12">
-            <h2>@Model.Name</h2>
+            <h2>@Model.Order.First().Name</h2>
         </div>
         <div class="col-sm-12">
             <div id="projectView"></div>
         </div>
         </div>
         <div class="col-sm-12">
-            <div id="@Model.OrderId" style="margin: auto"></div>
+            <div id="@Model.Order.First().OrderId" style="margin: auto"></div>
             <script>
                 window.addEventListener("load", function () {
                     "use strict";
 
-                    $("#@Model.OrderId").rateYo({
-                        rating: parseFloat(@Model.Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Rate.ToString().Replace(",", ".")),
+                    $("#@Model.Order.First().OrderId").rateYo({
+                        rating: parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")),
                         onSet: function (rating, rateYoInstance) {
 
-                            var data = { "Rate": rating, "Id": @Model.OrderId.ToString() };
+                            var data = { "Rate": rating, "Id": @Model.Order.First().OrderId.ToString() };
 
                             $.ajax({
                                 type: 'POST',
@@ -91,7 +91,7 @@
 
                     (function () {
                         var xhr = new XMLHttpRequest();
-                        xhr.open('GET', '/DoZatwierdzenia/@Model.Path', true);
+                        xhr.open('GET', '/DoZatwierdzenia/@Model.Order.First().Path', true);
                          xhr.responseType = 'blob';
 
                          xhr.onload = function (e) {
@@ -128,4 +128,3 @@
             </script>
         </div>
     </div>
-</div>

@@ -1,20 +1,48 @@
-﻿<form asp-controller="Home" asp-action="UploadFile" method="post"
-      enctype="multipart/form-data">
-    
-    <input type="file" name="file"/>
-    <button type="submit">Upload File</button>
-</form>
+﻿@model ReflectionIT.Mvc.Paging.PagingList<Drukarka3DData.Models.Order>
+@using ReflectionIT.Mvc.Paging
+@addTagHelper *, ReflectionIT.Mvc.Paging
 
-<form asp-controller="Home" asp-action="UploadFiles" method="post"
-      enctype="multipart/form-data">
+@{
+    ViewData["Title"] = "Suppliers";
+}
 
-    <input type="file" name="files" multiple />
-    <button type="submit">Upload Files</button>
-</form>
+<script src="/lib/jquery/dist/jquery.js"></script>
+<script src="/js/jquery.rateyo.min.js"></script>
 
-<form asp-controller="Home" asp-action="UploadFileViaModel" method="post"
-      enctype="multipart/form-data">
 
-    <input type="file" name="FileToUpload" />
-    <button type="submit">Upload File (model)</button>
-</form>
+@await this.Component.InvokeAsync("Pager", new { pagingList = this.Model })
+
+
+<div class="container-fluid">
+    <div class="row imagetiles">
+        @for (int i = 0; i < Model.Count() - 2; i += 4)
+        {
+
+            @for (int j = i; j < i + 4; j++)
+            {
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                    <form asp-controller="Home" asp-action="ProjectView" method="post" enctype="multipart/form-data">
+                        <input type="image" src="@Model.ElementAt(j).UserScreenPath" class="img-responsive" name="@Model.ElementAt(j).OrderId" />
+                    </form>
+                    <div class="img-gallery-img-footer">
+                        <div class="image-caption-div">@Model.ElementAt(j).Name</div>
+                        <div id="rateYo-@Model.ElementAt(j).OrderId" style="float: right"></div>
+                        <script>
+
+                                $("#rateYo-@Model.ElementAt(j).OrderId").rateYo({
+            rating: (parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")))/5,
+                                    maxValue: 1,
+                                    numStars: 1,
+                                    starWidth: "40px",
+                                    readOnly: true
+                                });
+                        </script>
+                    </div>
+                </div>
+            }
+
+        }
+    </div>
+</div>
+
+<vc:pager paging-list="@Model" />

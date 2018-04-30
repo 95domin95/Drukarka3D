@@ -27,9 +27,8 @@
             <a href="#" id="menu-icon"></a>
             <ul>
                 @await Html.PartialAsync("_LoginPartial")
-                <li><a href="@Url.Action("ProjectsGallery","Home")">Projekty</a></li>
+                <li><a asp-controller="Home" asp-action="Index">Projekty</a></li>
                 @*<li id="login-icon">@RenderSection("LoginLink", required: false)</li>*@
-
             </ul>
         </nav>
     </header>

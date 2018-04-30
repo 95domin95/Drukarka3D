@@ -11,6 +11,6 @@ namespace Drukarka3DData.Models
         public string SortingType { get; set; }
         public int PageNumber { get; set; }
         public int NumberOfResolutsInPage { get; set; }
-        public Order Order { get; set; }
+        public IEnumerable<Order> Order { get; set; }
     }
 }

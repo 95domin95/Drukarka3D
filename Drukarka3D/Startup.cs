@@ -14,6 +14,7 @@ using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http.Features;
 using Drukarka3D.Services;
+using ReflectionIT.Mvc.Paging;
 
 namespace Drukarka3D
 {
@@ -51,6 +52,8 @@ namespace Drukarka3D
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<Drukarka3DContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddPaging();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
