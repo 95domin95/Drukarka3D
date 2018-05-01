@@ -114,6 +114,9 @@ namespace Drukarka3D.Controllers
 
                 if (order == null) throw new NullReferenceException();
 
+                order.First().ViewsCount += 1;
+                context.SaveChanges();
+
                 return View(new OrderViewModel()
                 {
                     NumberOfResolutsInPage = 0,
@@ -122,6 +125,7 @@ namespace Drukarka3D.Controllers
                     SearchString = String.Empty,
                     SortingOrder = String.Empty,
                     Order = order
+                    
                 });
             }
             catch(Exception)

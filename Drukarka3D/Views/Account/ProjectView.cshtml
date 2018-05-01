@@ -150,6 +150,7 @@
         </div>
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
         <div class="col-sm-12">Status: @Model.Order.First().Status</div>
+        <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>
         <div class="col-sm-12" style="margin-bottom: 10px;"><button class="btn btn-default" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
     </div>
 </div>
