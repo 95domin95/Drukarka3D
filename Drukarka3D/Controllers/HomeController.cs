@@ -152,7 +152,7 @@ namespace Drukarka3D.Controllers
         public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status")
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
-            .OrderBy(order => order.UploadDate).AsQueryable();
+            .OrderByDescending(order => order.UploadDate).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter))
             {

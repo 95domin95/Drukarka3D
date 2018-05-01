@@ -40,7 +40,7 @@ namespace Drukarka3D.Controllers
             var newestOrders = context.Order.AsNoTracking().Where(order => order
             .Private.Equals(false) && order.User.Id
             .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderBy(order => order.UploadDate).AsQueryable();
+            .OrderByDescending(order => order.UploadDate).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
