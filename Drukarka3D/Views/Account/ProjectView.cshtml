@@ -10,10 +10,36 @@
             <h4>Panel użytkownika</h4>
         </div>
         <div class="col-sm-6 col-xs-6" style="text-align: right">
-            <form asp-controller="Home" asp-action="ProjectShare" method="post" enctype="multipart/form-data" style="margin-top:5px">
-                <label>Projekt publiczny: <input type="checkbox" checked /></label>
+            <div style="margin-top:5px">
+                @if (Model.Order.First().Private) {
+                    <label>Projekt publiczny: <input id="isPrivate" type="checkbox"/></label>
+                }
+                else
+                {
+                    <label>Projekt publiczny: <input id="isPrivate" type="checkbox" checked/></label>
+                }
+
                 <button type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Zmień</button>
-            </form>
+            </div>
+            <script>
+                window.addEventListener("load", function () {
+                    $("#confirm").click(function () {
+                        var isPrivate = $("#isPrivate").prop("checked");
+
+                        var id = @Model.Order.First().OrderId;
+
+                        var privacy = { "IsPrivate": isPrivate, "Id": id };
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'ProjectShare',
+                            data: JSON.stringify(privacy),
+                            dataType: 'JSON',
+                            contentType: "application/json; charset=utf-8"
+                        });
+                    });
+                }, false);
+            </script>
         </div>
         <div class="col-sm-6 col-xs-6" style="text-align: left">
             <form asp-controller="Home" asp-action="UploadFile" method="post" enctype="multipart/form-data" style="margin-top:5px">

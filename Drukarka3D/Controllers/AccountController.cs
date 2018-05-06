@@ -15,6 +15,11 @@ using ReflectionIT.Mvc.Paging;
 
 namespace Drukarka3D.Controllers
 {
+    public class ProjectPrivacy
+    {
+        public string Id { get; set; }
+        public string IsPrivate { get; set; }
+    }
     public class AccountController : Controller
     {
         public string UserScreenPath { get; set; }
@@ -37,8 +42,7 @@ namespace Drukarka3D.Controllers
 
         public async Task<IActionResult> Index(string filter = "", int page = 1, string sortExpression = "Status")
         {
-            var newestOrders = context.Order.AsNoTracking().Where(order => order
-            .Private.Equals(false) && order.User.Id
+            var newestOrders = context.Order.AsNoTracking().Where(order => order.User.Id
             .Equals(userManager.GetUserId(HttpContext.User)))
             .OrderByDescending(order => order.UploadDate).AsQueryable();
 
@@ -55,6 +59,21 @@ namespace Drukarka3D.Controllers
             };
             return View(model);
         }
+
+        [HttpPost]
+        public IActionResult ProjectShare([FromBody]ProjectPrivacy privacy)
+        {
+            var result = context.Order.Where(o => o.OrderId
+            .Equals(Convert.ToInt32(privacy.Id))).FirstOrDefault();
+
+            if (privacy.IsPrivate == null) privacy.IsPrivate = "off";
+
+            result.Private = privacy.IsPrivate.Equals("true") ? false : true;
+            context.SaveChanges();
+
+            return Ok(result);
+        }
+
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
         {

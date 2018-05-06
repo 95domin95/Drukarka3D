@@ -248,7 +248,7 @@ namespace Drukarka3D.Controllers
 
         [HttpPost]
         [RequestSizeLimit(100_000_000)]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(string isPrivate, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -257,9 +257,13 @@ namespace Drukarka3D.Controllers
                 //return Content("file not selected");
             }
 
+            string currentDate = DateTime.Now.ToString();
+            currentDate = currentDate.Replace(':', '_');
+            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + file.GetFilename();
+
             var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/",
-                        file.GetFilename());
+                        Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
+                        
 
             using (var stream = new FileStream(path, FileMode.Create))
             {
@@ -274,11 +278,13 @@ namespace Drukarka3D.Controllers
                                where p.UploadDate.Equals(c.UploadDate)
                                select p).SingleOrDefault();
 
+            if (isPrivate == null) isPrivate = "off";
 
             if (userOrder != null)
             {
-                userOrder.Name = file.GetFilename();
-                userOrder.Path = file.GetFilename();
+                userOrder.Private = isPrivate.Equals("on") ? false : true;
+                userOrder.Name = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
+                userOrder.Path = fileName;
             }
             context.SaveChanges();
 
@@ -313,7 +319,7 @@ namespace Drukarka3D.Controllers
             //    //Process.Start("CMD.exe", strCmdText);
             //}
 
-            return RedirectToAction("Loader");
+            return RedirectToAction("Index");
         }
 
 
