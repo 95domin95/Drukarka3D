@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Drukarka3DData.Models;
+@using Drukarka3DData.Models
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -22,9 +22,9 @@
             </form>
         </div>
     </div>*@
-    <div class="col-xs-12 col-sm-12">
-        <form asp-controller="Home" asp-action="UploadFile" method="post" enctype="multipart/form-data" style="margin-top:5px">
+    @*<div class="col-xs-12 col-sm-12">
+        <form asp-controller="Home" asp-action="Print" method="post" enctype="multipart/form-data" style="margin-top:5px">
             <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px"><strong>Drukuj</strong></button>
         </form>
-    </div>
+    </div>*@
 }

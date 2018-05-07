@@ -4,46 +4,53 @@
 *@
 
 @*@section LoginLink
-    {
-    <a href="@Url.Action("Login", "Home")">Zaloguj</a>
-}*@
+        {
+        <a href="@Url.Action("Login", "Home")">Zaloguj</a>
+    }*@
 
-<div class="box">
+<div class="box row">
     <h2>Rejestracja</h2>
-    <form method="post" asp-controller="Home" asp-action="Register">
-        <div asp-validation-summary="All"></div>
+    <div class="col-sm-4 col-sm-offset-4 col-xs-6 col-xs-offset-3">
+        <form method="post" asp-controller="Home" asp-action="Register">
+            <div asp-validation-summary="All" class="text-danger"></div>
 
-        <div>
-            <label asp-for="Login"></label>
-            <br>
-            <input asp-for="Login" />
-            <span asp-validation-for="Login"></span>
-        </div>
+            <div>
+                <label asp-for="Login"></label>
+                <br>
+                <input asp-for="Login" class="form-control" />
+                <span asp-validation-for="Login"></span>
+            </div>
 
-        <div>
-            <label asp-for="Email"></label>
-            <br>
-            <input asp-for="Email" />
-            <span asp-validation-for="Email"></span>
-        </div>
+            <div>
+                <label asp-for="Email"></label>
+                <br>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email"></span>
+            </div>
 
-        <div>
-            <label asp-for="Password"></label>
-            <br>
-            <input asp-for="Password" />
-            <span asp-validation-for="Password"></span>
-        </div>
+            <div>
+                <label asp-for="Password"></label>
+                <br>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password"></span>
+            </div>
 
-        <div>
-            <label asp-for="ConfirmPassword"></label>
-            <br>
-            <input asp-for="ConfirmPassword" />
-            <span asp-validation-for="ConfirmPassword"></span>
-        </div>
+            <div>
+                <label asp-for="ConfirmPassword"></label>
+                <br>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword"></span>
+            </div>
 
-        <div>
-            <input class="button" type="submit" value="Rejestracja" />
-        </div>
+            <div>
+                <input class="button btn btn-primary" type="submit" value="Rejestracja" />
+            </div>
 
-    </form>
+        </form>
+    </div>
+
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

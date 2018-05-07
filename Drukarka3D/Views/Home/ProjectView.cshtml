@@ -15,8 +15,24 @@
         <div class="col-sm-12 col-xs-12">
             <div id="@Model.Order.First().OrderId" style="margin: auto"></div>
             <script>
+
                 window.addEventListener("load", function () {
                     "use strict";
+
+                    $("#confirm").click(function () {
+
+                        var data = { "FilePath": "@Model.Order.FirstOrDefault().Path" };
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'Print',
+                            data: JSON.stringify(data),
+                            dataType: 'JSON',
+                            contentType: "application/json; charset=utf-8"
+                        }).done(function (data) {
+                            alert("Wysłano do druku");
+                        });;
+                    });
 
                     $("#projectView").css("width", function () {
                         return $(window).width() * 0.7;
@@ -135,6 +151,7 @@
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
         <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>
         <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><button class="btn btn-default" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
+        <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px; margin-top: 5px;"><strong>Drukuj</strong></button>
         @await Html.PartialAsync("_ProjectViewPartial")
     </div>
 </div>

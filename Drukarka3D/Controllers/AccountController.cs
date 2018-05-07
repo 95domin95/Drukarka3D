@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Drukarka3D.Services;
@@ -40,6 +41,23 @@ namespace Drukarka3D.Controllers
             this.fileProvider = fileProvider;
         }
 
+        [HttpPost]
+        public IActionResult Print([FromBody]FileToPrint data)
+        {
+            var path1 = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
+
+            string currentDate = DateTime.Now.ToString();
+            currentDate = currentDate.Replace(':', '_');
+            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + ".stl";
+
+            var path2 = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
+
+            System.IO.File.Copy(path1, path2);
+
+            return Json(new JsonResult(data));
+        }
         public async Task<IActionResult> Index(string filter = "", int page = 1, string sortExpression = "Status")
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.User.Id

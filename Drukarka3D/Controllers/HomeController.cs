@@ -40,6 +40,11 @@ namespace Drukarka3D.Controllers
         public string SearchString { get; set; }
     }
 
+    public class FileToPrint
+    {
+        public string FilePath { get; set; }
+    }
+
     public class ProjectViewForm
     {
         public string PageNumber { get; set; }
@@ -244,6 +249,24 @@ namespace Drukarka3D.Controllers
                 return RedirectToAction("Loader");
             }
 
+        }
+
+        [HttpPost]
+        public IActionResult Print([FromBody]FileToPrint data)
+        {
+            var path1 = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
+
+            string currentDate = DateTime.Now.ToString();
+            currentDate = currentDate.Replace(':', '_');
+            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + ".stl";
+
+            var path2 = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
+
+            System.IO.File.Copy(path1, path2);
+
+            return Json(new JsonResult(data));
         }
 
         [HttpPost]
