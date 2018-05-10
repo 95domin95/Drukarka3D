@@ -18,7 +18,7 @@ namespace Drukarka3D.Controllers
 {
     public class ProjectPrivacy
     {
-        public string Id { get; set; }
+        public string Id { get; set; } 
         public string IsPrivate { get; set; }
     }
     public class AccountController : Controller
@@ -44,52 +44,52 @@ namespace Drukarka3D.Controllers
         [HttpPost]
         public IActionResult Print([FromBody]FileToPrint data)
         {
-            var path1 = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
+            var path1 = Path.Combine( 
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);//Kamil
 
-            string currentDate = DateTime.Now.ToString();
-            currentDate = currentDate.Replace(':', '_');
-            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + ".stl";
+            string currentDate = DateTime.Now.ToString();//Kamil
+            currentDate = currentDate.Replace(':', '_');//Kamil
+            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + ".stl";//Dominik
 
             var path2 = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);//Kamil
 
-            System.IO.File.Copy(path1, path2);
+            System.IO.File.Copy(path1, path2);//Kamil
 
-            return Json(new JsonResult(data));
+            return Json(new JsonResult(data));//Dominik
         }
         public async Task<IActionResult> Index(string filter = "", int page = 1, string sortExpression = "Status")
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.User.Id
             .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderByDescending(order => order.UploadDate).AsQueryable();
+            .OrderByDescending(order => order.UploadDate).AsQueryable(); //Dominik
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
                 newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
-            }
+            }//Dominik
 
-            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");
+            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");//Dominik
 
             model.RouteValue = new RouteValueDictionary
             {
                 { "filter", filter}
             };
-            return View(model);
+            return View(model);//Dominik
         }
 
         [HttpPost]
         public IActionResult ProjectShare([FromBody]ProjectPrivacy privacy)
         {
             var result = context.Order.Where(o => o.OrderId
-            .Equals(Convert.ToInt32(privacy.Id))).FirstOrDefault();
+            .Equals(Convert.ToInt32(privacy.Id))).FirstOrDefault();//Dominik
 
-            if (privacy.IsPrivate == null) privacy.IsPrivate = "off";
+            if (privacy.IsPrivate == null) privacy.IsPrivate = "off";//Kamil
 
-            result.Private = privacy.IsPrivate.Equals("true") ? false : true;
-            context.SaveChanges();
+            result.Private = privacy.IsPrivate.Equals("true") ? false : true;//Kamil
+            context.SaveChanges();//Kamil
 
-            return Ok(result);
+            return Ok(result);//Dominik
         }
 
         [HttpPost]
@@ -97,15 +97,15 @@ namespace Drukarka3D.Controllers
         {
             try
             {
-                string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length - 2);
+                string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length - 2);//Dominik
 
                 ICollection<Order> order = context.Order.Where(o => o
-                .OrderId.Equals(Convert.ToInt32(tmp))).ToList();
+                .OrderId.Equals(Convert.ToInt32(tmp))).ToList();//Dominik
 
-                if (order == null) throw new NullReferenceException();
+                if (order == null) throw new NullReferenceException();//Kamil
 
-                order.First().ViewsCount += 1;
-                context.SaveChanges();
+                order.First().ViewsCount += 1;//Dominik
+                context.SaveChanges();//Kamil
 
                 return View(new OrderViewModel()
                 {
@@ -115,11 +115,11 @@ namespace Drukarka3D.Controllers
                     SearchString = String.Empty,
                     SortingOrder = String.Empty,
                     Order = order
-                });
+                });//Kamil
             }
             catch (Exception)
             {
-                return View();
+                return View();//Kamil
             }
         }
     }

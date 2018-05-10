@@ -79,32 +79,32 @@ namespace Drukarka3D.Controllers
 
         public void ForwardFiles(string pathForStl)
         {
-            var adressFTP = "http://192.168.43.155:5000:23";
-            var usrNameFTP = "drukarka";
-            var passwordFTP = "ZAQ!2wsx";
+            var adressFTP = "http://192.168.43.155:5000:23";//Denis
+            var usrNameFTP = "drukarka";//Denis
+            var passwordFTP = "ZAQ!2wsx";//Denis
 
             // Get the object used to communicate with the server.  
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(adressFTP);
-            request.Method = WebRequestMethods.Ftp.UploadFile;
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(adressFTP);//Kamil
+            request.Method = WebRequestMethods.Ftp.UploadFile;//Kamil
 
             // This example assumes the FTP site uses anonymous logon.  
-            request.Credentials = new NetworkCredential(usrNameFTP, passwordFTP);
+            request.Credentials = new NetworkCredential(usrNameFTP, passwordFTP);//Kamil
 
             // Copy the contents of the file to the request stream.  
-            StreamReader sourceStream = new StreamReader(pathForStl);
-            byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-            sourceStream.Close();
-            request.ContentLength = fileContents.Length;
+            StreamReader sourceStream = new StreamReader(pathForStl);//Kamil
+            byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());//Kamil
+            sourceStream.Close();//Kamil
+            request.ContentLength = fileContents.Length;//Kamil
 
-            Stream requestStream = request.GetRequestStream();
-            requestStream.Write(fileContents, 0, fileContents.Length);
-            requestStream.Close();
+            Stream requestStream = request.GetRequestStream();//Dominik
+            requestStream.Write(fileContents, 0, fileContents.Length);//Dominik
+            requestStream.Close();//Dominik
 
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();//Dominik
 
-            Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);
+            Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);//Kamil
 
-            response.Close();
+            response.Close();//Dominik
         }
 
         [HttpPost]
@@ -112,15 +112,15 @@ namespace Drukarka3D.Controllers
         {
             try
             {
-                string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length-2);
+                string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length-2);//Dominik
 
                 ICollection<Order> order = context.Order.Where(o => o
-                .OrderId.Equals(Convert.ToInt32(tmp))).ToList();
+                .OrderId.Equals(Convert.ToInt32(tmp))).ToList();//Dominik
 
-                if (order == null) throw new NullReferenceException();
+                if (order == null) throw new NullReferenceException();//Kamil
 
                 order.First().ViewsCount += 1;
-                context.SaveChanges();
+                context.SaveChanges();//Dominik
 
                 return View(new OrderViewModel()
                 {
@@ -131,7 +131,7 @@ namespace Drukarka3D.Controllers
                     SortingOrder = String.Empty,
                     Order = order
                     
-                });
+                });//Dominik
             }
             catch(Exception)
             {
@@ -144,34 +144,34 @@ namespace Drukarka3D.Controllers
         public IActionResult UpdateRating([FromBody]Rating rating)
         {
             Order userOrder = context.Order.Where(order => order.OrderId
-            .Equals(Convert.ToInt32(rating.Id))).First();
+            .Equals(Convert.ToInt32(rating.Id))).First();//Dominik
             //(parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")) + parseFloat(@Model.ElementAt(j).RatingsCount)) / Boolean(@Model.ElementAt(j).RatingsCount.Equals(0)) ? 1 : @Model.ElementAt(j).RatingsCount};),
-            userOrder.RatingsCount += 1;
-            userOrder.RatingsSum += rating.Rate;
-            userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum)/(userOrder.RatingsCount));
-            context.SaveChanges();
+            userOrder.RatingsCount += 1;//Dominik
+            userOrder.RatingsSum += rating.Rate;//Dominik
+            userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum)/(userOrder.RatingsCount));//Dominik
+            context.SaveChanges();//Kamil
 
-            return RedirectToAction("ProjectsGallery");
+            return RedirectToAction("ProjectsGallery");//Kamil
         }
 
         public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status")
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
-            .OrderByDescending(order => order.UploadDate).AsQueryable();
+            .OrderByDescending(order => order.UploadDate).AsQueryable();//Dominik
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
-                newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
+                newestOrders = newestOrders.Where(order => order.Name.Contains(filter));//Dominik
             }
 
-            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");
+            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");//Dominik
 
             model.RouteValue = new RouteValueDictionary
             {
                 { "filter", filter}
-            };
+            };//Dominik
 
-            return View(model);
+            return View(model);//Kamil
         }
 
         public IActionResult MyOrders()
@@ -179,32 +179,32 @@ namespace Drukarka3D.Controllers
 
              ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
             .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderByDescending(order => order.UploadDate).ToList();
+            .OrderByDescending(order => order.UploadDate).ToList();//Dominik
 
-            return View(userOrders);
+            return View(userOrders);//Dominik
         }
 
         [HttpPost]
         public IActionResult MyOrders(string SearchString)
         {
-            if (SearchString == null) SearchString = String.Empty;
+            if (SearchString == null) SearchString = String.Empty; //Kamil
 
             ICollection<Order> userOrders = context.Order.Where(order => 
             (order.Status.Contains(SearchString)
             || order.UploadDate.ToString().Contains(SearchString)
             || order.Name.Contains(SearchString)
             || order.User.UserName.Contains(SearchString)))
-            .OrderByDescending(order => order.UploadDate).ToList();
+            .OrderByDescending(order => order.UploadDate).ToList();//Dominik
 
-            return View(userOrders);
+            return View(userOrders);//Kamil
         }
 
         public IActionResult AllOrders()
         {
             ICollection<Order> latestOrders = context.Order.Select(order => order)
-            .OrderByDescending(order => order.UploadDate).ToList();
+            .OrderByDescending(order => order.UploadDate).ToList();//Dominik
 
-            return View(latestOrders);
+            return View(latestOrders);//Dominik
         }
 
         [HttpPost]
@@ -212,41 +212,41 @@ namespace Drukarka3D.Controllers
         {
             try
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/");
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/");//Kamil
 
-                string tmp = DateTime.Now.ToString().Replace("/", "-").Replace(" ", "-").Replace(":", "") + ".png";
+                string tmp = DateTime.Now.ToString().Replace("/", "-").Replace(" ", "-").Replace(":", "") + ".png";//Kamil
 
-                UserScreenPath = "/images/" + tmp;
+                UserScreenPath = "/images/" + tmp;//Kamil
 
-                string fileNameWitPath = "wwwroot/images/" + tmp;
+                string fileNameWitPath = "wwwroot/images/" + tmp;//Kamil
                 using (FileStream fs = new FileStream(fileNameWitPath, FileMode.Create))
                 {
                     using (BinaryWriter bw = new BinaryWriter(fs))
                     {
                         //await Response.WriteAsync("<script>alert('" + screen.File + "');</script>");
-                        byte[] data = Convert.FromBase64String(screen.File);
-                        bw.Write(data);
-                        bw.Close();
+                        byte[] data = Convert.FromBase64String(screen.File);//Dawid
+                        bw.Write(data);//Dawid
+                        bw.Close();//Dawid
                     }
                 }
 
                 var usrOrder = new Order
                 {
-                    Status = "Przyjęto",
-                    User = await userManager.GetUserAsync(HttpContext.User),
-                    UploadDate = DateTime.Now,
-                    UserScreenPath = UserScreenPath
+                    Status = "Przyjęto",//Kamil
+                    User = await userManager.GetUserAsync(HttpContext.User),//Dominik
+                    UploadDate = DateTime.Now,//Kamil   
+                    UserScreenPath = UserScreenPath //Kamil
                 };
 
-                context.Order.Add(usrOrder);
-                context.SaveChanges();
+                context.Order.Add(usrOrder);//Dominik
+                context.SaveChanges();//Kamil
 
-                return RedirectToAction("Loader");
+                return RedirectToAction("Loader");//Kamil
             }
             catch (Exception ex)
             {               
                 //await Response.WriteAsync("<script>alert('"+ex.Message+"');</script>");
-                return RedirectToAction("Loader");
+                return RedirectToAction("Loader");//Dawid
             }
 
         }
@@ -255,18 +255,18 @@ namespace Drukarka3D.Controllers
         public IActionResult Print([FromBody]FileToPrint data)
         {
             var path1 = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);//Kamil
 
-            string currentDate = DateTime.Now.ToString();
-            currentDate = currentDate.Replace(':', '_');
-            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + ".stl";
+            string currentDate = DateTime.Now.ToString();//Kamil
+            currentDate = currentDate.Replace(':', '_');//Dominik
+            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + ".stl";//Kamil
 
             var path2 = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);//Dominik
 
-            System.IO.File.Copy(path1, path2);
+            System.IO.File.Copy(path1, path2);//Dominik
 
-            return Json(new JsonResult(data));
+            return Json(new JsonResult(data));//Dominik
         }
 
         [HttpPost]
@@ -276,44 +276,44 @@ namespace Drukarka3D.Controllers
             if (file == null || file.Length == 0)
             {
                 //await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
-                return RedirectToPagePermanent("Loader");
+                return RedirectToPagePermanent("Loader");//Dominik
                 //return Content("file not selected");
             }
 
-            string currentDate = DateTime.Now.ToString();
-            currentDate = currentDate.Replace(':', '_');
-            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + file.GetFilename();
+            string currentDate = DateTime.Now.ToString();//Kamil
+            currentDate = currentDate.Replace(':', '_');//Kamil
+            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + file.GetFilename();//Dominik
 
             var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
+                        Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);//Kamil
                         
 
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(stream);//Dominik
             }
 
             Order c = context.Order.Where(order => order.User.Id
             .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderByDescending(order => order.UploadDate).First();
+            .OrderByDescending(order => order.UploadDate).First();//Dominik
 
             Order userOrder = (from p in context.Order
                                where p.UploadDate.Equals(c.UploadDate)
-                               select p).SingleOrDefault();
+                               select p).SingleOrDefault();//Dominik
 
-            if (isPrivate == null) isPrivate = "off";
+            if (isPrivate == null) isPrivate = "off";//Kamil
 
             if (userOrder != null)
             {
-                userOrder.Private = isPrivate.Equals("on") ? false : true;
-                userOrder.Name = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
-                userOrder.Path = fileName;
+                userOrder.Private = isPrivate.Equals("on") ? false : true;//Dawid
+                userOrder.Name = file.GetFilename().Substring(0, file.GetFilename().Length - 4);//Dominik
+                userOrder.Path = fileName;//Dawid
             }
-            context.SaveChanges();
+            context.SaveChanges();//Kamil
 
             var pathForStl = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
-            DirectoryInfo d = new DirectoryInfo(pathForStl);
+            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");//Kamil
+            DirectoryInfo d = new DirectoryInfo(pathForStl);//Kamil
 
             //ForwardFiles(pathForStl);
 
@@ -350,21 +350,21 @@ namespace Drukarka3D.Controllers
         public async Task<IActionResult> UploadFiles(List<IFormFile> files)
         {
             if (files == null || files.Count == 0)
-                return Content("files not selected");
+                return Content("files not selected");//Dawid
 
             foreach (var file in files)
             {
                 var path = Path.Combine(
                         Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/",
-                        file.GetFilename());
+                        file.GetFilename());//Kamil
 
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    await file.CopyToAsync(stream);//Dominik
                 }
             }
-            ViewData["Uploaded"] = "Pomyślnie przesłano plik";
-            return RedirectToAction("Loader");
+            ViewData["Uploaded"] = "Pomyślnie przesłano plik";//Dominik
+            return RedirectToAction("Loader");//Dawid
         }
 
 
@@ -374,29 +374,29 @@ namespace Drukarka3D.Controllers
         {
             if (model == null ||
                 model.FileToUpload == null || model.FileToUpload.Length == 0)
-                return Content("file not selected");
+                return Content("file not selected");//Dominik
 
             var path = Path.Combine(
                         Directory.GetCurrentDirectory(), "wwwroot",
-                        model.FileToUpload.GetFilename());
+                        model.FileToUpload.GetFilename());//Kamil
 
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await model.FileToUpload.CopyToAsync(stream);
+                await model.FileToUpload.CopyToAsync(stream);//Dominik
             }
 
-            return RedirectToAction("Files");
+            return RedirectToAction("Files");//Dominik
         }
 
         public IActionResult Files()
         {
-            var model = new FilesViewModel();
+            var model = new FilesViewModel();//Dominik
             foreach (var item in this.fileProvider.GetDirectoryContents(""))
             {
                 model.Files.Add(
-                    new FileDetails { Name = item.Name, Path = item.PhysicalPath });
+                    new FileDetails { Name = item.Name, Path = item.PhysicalPath });//Dominik
             }
-            return View(model);
+            return View(model);//Dominik
         }
 
         public async Task<IActionResult> Download(string filename)
@@ -404,33 +404,33 @@ namespace Drukarka3D.Controllers
             try
             {
                 if (filename == null)
-                    return Content("filename not present");
+                    return Content("filename not present");//Kamil
 
                 var path = Path.Combine(
                                Directory.GetCurrentDirectory(),
-                               "wwwroot/DoZatwierdzenia/", filename);
+                               "wwwroot/DoZatwierdzenia/", filename);//Kamil
 
-                var memory = new MemoryStream();
+                var memory = new MemoryStream();//Dominik
                 using (var stream = new FileStream(path, FileMode.Open))
                 {
-                    await stream.CopyToAsync(memory);
+                    await stream.CopyToAsync(memory);//Dominik
                 }
-                memory.Position = 0;
-                return File(memory, GetContentType(path), Path.GetFileName(path));
+                memory.Position = 0;//Dominik
+                return File(memory, GetContentType(path), Path.GetFileName(path));//Dominik
             }
             catch(FileNotFoundException)
             {
-                await Response.WriteAsync("<script>alert('Blad: Nie znaleziono pliku!')</script>");
-                return RedirectToAction("Loader");
+                await Response.WriteAsync("<script>alert('Blad: Nie znaleziono pliku!')</script>");//Dominik
+                return RedirectToAction("Loader");//Dominik
             }
 
         }
 
         private string GetContentType(string path)
         {
-            var types = GetMimeTypes();
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            return types[ext];
+            var types = GetMimeTypes();//Dominik
+            var ext = Path.GetExtension(path).ToLowerInvariant();//Dominik
+            return types[ext];//Dominik
         }
 
         private Dictionary<string, string> GetMimeTypes()
@@ -449,7 +449,7 @@ namespace Drukarka3D.Controllers
                 {".gif", "image/gif"},
                 {".csv", "text/csv"},
                 {".stl", "application/vnd.ms-pki.stl"}
-            };
+            };//Dawid
         }
 
         [Authorize]
@@ -457,17 +457,17 @@ namespace Drukarka3D.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                ViewData["Title"] = "Strona Główna";
-                return View();
+                ViewData["Title"] = "Strona Główna";//Dawid
+                return View();//Dawid
             }
-            else return RedirectToAction("Index","Home");
+            else return RedirectToAction("Index","Home");//Dawid
 
         }
 
         public async Task<IActionResult> LogOut()
         {
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Home");
+            await signInManager.SignOutAsync();//Dominik
+            return RedirectToAction("Login", "Home");//Dominik
         }
 
         [HttpGet]
@@ -481,22 +481,22 @@ namespace Drukarka3D.Controllers
         {
             if(ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(vm.Login, vm.Password, vm.RememberMe, false);
-                if(result.Succeeded)
+                var result = await signInManager.PasswordSignInAsync(vm.Login, vm.Password, vm.RememberMe, false);//Dominik
+                if (result.Succeeded)
                 {
-                    return RedirectToAction("Index","Home");
+                    return RedirectToAction("Index","Home");//Dominik
                 }
-                ModelState.AddModelError("", "Invalid Login Attempt.");
-                return View(vm);
+                ModelState.AddModelError("", "Invalid Login Attempt.");//Dominik
+                return View(vm);//Dominik
             }
-            return View(vm);
+            return View(vm);//Dominik
         }
 
         [HttpGet]
         public IActionResult Register()
         {
-            ViewData["Title"] = "Rejestracja";
-            return View();
+            ViewData["Title"] = "Rejestracja";//Dawid
+            return View();//Dawid
         }
 
         [HttpPost]
@@ -504,42 +504,42 @@ namespace Drukarka3D.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = vm.Login, Email = vm.Email };
-                var result = await userManager.CreateAsync(user, vm.Password);
+                var user = new ApplicationUser { UserName = vm.Login, Email = vm.Email };//Dominik
+                var result = await userManager.CreateAsync(user, vm.Password);//Dominik
 
-                if(result.Succeeded)
+                if (result.Succeeded)
                 {
-                    await signInManager.SignInAsync(user, false);
-                    return RedirectToAction("Index","Home");
+                    await signInManager.SignInAsync(user, false);//Dominik
+                    return RedirectToAction("Index","Home");//Dominik
                 }
                 else
                 {
                     foreach(var error in result.Errors)
                     {
-                        ModelState.AddModelError("", error.Description);
+                        ModelState.AddModelError("", error.Description);//Dominik
                     }
                 }
             }
-            return View(vm);
+            return View(vm);//Dominik
         }
 
         [HttpGet]
         public async Task<IActionResult> ChangePassword()
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);//Dominik
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");//Dawid
             }
 
-            var hasPassword = await userManager.HasPasswordAsync(user);
+            var hasPassword = await userManager.HasPasswordAsync(user);//Dominik
             if (!hasPassword)
             {
-                return RedirectToAction(nameof(SetPassword));
+                return RedirectToAction(nameof(SetPassword));//Dominik
             }
 
-            var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };
-            return View(model);
+            var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };//Dominik
+            return View(model);//Dominik
         }
 
         [HttpPost]
@@ -548,46 +548,46 @@ namespace Drukarka3D.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(model);//Dominik
             }
 
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);//Dominik
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");//Dominik
             }
 
-            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);//Dominik
             if (!changePasswordResult.Succeeded)
             {
-                AddErrors(changePasswordResult);
-                return View(model);
+                AddErrors(changePasswordResult);//Dominik
+                return View(model);//Dominik
             }
 
-            await signInManager.SignInAsync(user, isPersistent: false);
-            StatusMessage = "Your password has been changed.";
+            await signInManager.SignInAsync(user, isPersistent: false);//Dominik
+            StatusMessage = "Your password has been changed.";//Dominik
 
-            return RedirectToAction(nameof(ChangePassword));
+            return RedirectToAction(nameof(ChangePassword));//Dominik
         }
 
         [HttpGet]
         public async Task<IActionResult> SetPassword()
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);//Dominik
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");//Dominik
             }
 
-            var hasPassword = await userManager.HasPasswordAsync(user);
+            var hasPassword = await userManager.HasPasswordAsync(user);//Dominik
 
             if (hasPassword)
             {
-                return RedirectToAction(nameof(ChangePassword));
+                return RedirectToAction(nameof(ChangePassword));//Dominik
             }
 
-            var model = new SetPasswordViewModel { StatusMessage = StatusMessage };
-            return View(model);
+            var model = new SetPasswordViewModel { StatusMessage = StatusMessage };//Dominik
+            return View(model);//Dominik
         }
 
         [HttpPost]
@@ -596,35 +596,35 @@ namespace Drukarka3D.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(model);//Kamil
             }
 
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);//Dominik
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");//Kamil
             }
 
-            var addPasswordResult = await userManager.AddPasswordAsync(user, model.NewPassword);
+            var addPasswordResult = await userManager.AddPasswordAsync(user, model.NewPassword);//Dominik
             if (!addPasswordResult.Succeeded)
             {
-                AddErrors(addPasswordResult);
-                return View(model);
+                AddErrors(addPasswordResult);//Kamil
+                return View(model);//Kamil
             }
 
-            await signInManager.SignInAsync(user, isPersistent: false);
-            StatusMessage = "Your password has been set.";
+            await signInManager.SignInAsync(user, isPersistent: false);//Dominik
+            StatusMessage = "Your password has been set.";//Kamil
 
-            return RedirectToAction(nameof(SetPassword));
+            return RedirectToAction(nameof(SetPassword));//Kamil
         }
 
         [HttpGet]
         public async Task<IActionResult> ManageAccount()
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);//Dominik
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");//Dominik
             }
 
             var model = new IndexViewModel
@@ -640,9 +640,9 @@ namespace Drukarka3D.Controllers
                 PhoneNumber = user.PhoneNumber,
                 IsEmailConfirmed = user.EmailConfirmed,
                 StatusMessage = StatusMessage
-            };
+            };//Dominik
 
-            return View(model);
+            return View(model);//Dominik
         }
 
         [HttpPost]
@@ -651,85 +651,85 @@ namespace Drukarka3D.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(model);//Kamil
             }
 
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);//Dominik
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");//Kamil
             }
 
-            var email = user.Email;
+            var email = user.Email;//Kamil
             if (model.Email != email)
             {
-                var setEmailResult = await userManager.SetEmailAsync(user, model.Email);
+                var setEmailResult = await userManager.SetEmailAsync(user, model.Email);//Dominik
                 if (!setEmailResult.Succeeded)
                 {
-                    throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
+                    throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");//Kamil
                 }
             }
 
-            var name = user.Name;
+            var name = user.Name;//Kamil
             if (model.Name != name)
             {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.Name = model.Name;
-                context.SaveChanges();
+                var usr = await userManager.GetUserAsync(HttpContext.User);//Dominik
+                usr.Name = model.Name;//Dominik
+                context.SaveChanges();//Kamil
             }
 
-            var surname = user.Surname;
+            var surname = user.Surname;//Kamil
             if (model.Surname != surname)
             {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.Surname = model.Surname;
-                context.SaveChanges();
+                var usr = await userManager.GetUserAsync(HttpContext.User);//Dominik
+                usr.Surname = model.Surname;//Dominik
+                context.SaveChanges();//Kamil
             }
 
-            var city = user.City;
+            var city = user.City;//Kamil
             if (model.City != city)
             {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.City = model.City;
-                context.SaveChanges();
+                var usr = await userManager.GetUserAsync(HttpContext.User);//Dominik
+                usr.City = model.City;//Dominik
+                context.SaveChanges();//Kamil
             }
 
-            var postCode = user.PostCode;
+            var postCode = user.PostCode;//Kamil
             if (model.PostCode != postCode)
             {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.PostCode = model.PostCode;
-                context.SaveChanges();
+                var usr = await userManager.GetUserAsync(HttpContext.User);//Dominik
+                usr.PostCode = model.PostCode;//Dominik
+                context.SaveChanges();//Kamil
             }
 
-            var street = user.Street;
+            var street = user.Street;//Kamil
             if (model.Street != street)
             {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.Street = model.Street;
-                context.SaveChanges();
+                var usr = await userManager.GetUserAsync(HttpContext.User);//Dominik
+                usr.Street = model.Street;//Dominik
+                context.SaveChanges();//Kamil
             }
 
-            var apartmentNumber = user.ApartmentNumber;
+            var apartmentNumber = user.ApartmentNumber;//Kamil
             if (model.ApartmentNumber != apartmentNumber)
             {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.ApartmentNumber = model.ApartmentNumber;
-                context.SaveChanges();
+                var usr = await userManager.GetUserAsync(HttpContext.User);//Dominik
+                usr.ApartmentNumber = model.ApartmentNumber;//Dominik
+                context.SaveChanges();//Kamil
             }
 
-            var phoneNumber = user.PhoneNumber;
+            var phoneNumber = user.PhoneNumber;//Kamil
             if (model.PhoneNumber != phoneNumber)
             {
-                var setPhoneResult = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+                var setPhoneResult = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);//Dominik
                 if (!setPhoneResult.Succeeded)
                 {
-                    throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
+                    throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");//Kamil
                 }
             }
 
-            StatusMessage = "Your profile has been updated";
-            return RedirectToAction(nameof(ManageAccount));
+            StatusMessage = "Your profile has been updated";//Kamil
+            return RedirectToAction(nameof(ManageAccount));//Kamil
         }
 
         //[HttpPost]
@@ -760,13 +760,13 @@ namespace Drukarka3D.Controllers
         {
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState.AddModelError(string.Empty, error.Description);//Dominik
             }
         }
 
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });//Dominik
         }
     }
 }
