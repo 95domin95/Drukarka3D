@@ -58,15 +58,6 @@ window.addEventListener("load", function () {
             obj = new THREE.Mesh(geom, mat);
             scene.add(obj);
 
-			//var container = document.getElementById("uploader");
-			//container.innerHTML = "";
-			//var div = document.createElement("div");
-			//div.innerHTML = '<div class="droppedFile"><b>'
-			//	+ file.name+" ("
-			//	+ file.size+"B)</b><i>";
-			//	// + this.result.substr(0, 100)+"</i></div>";
-			//container.appendChild(div);
-
         }, false);
         reader.readAsArrayBuffer(file);
     };
@@ -74,17 +65,16 @@ window.addEventListener("load", function () {
     var confirm = document.getElementById("confirm");
 
     confirm.addEventListener("click", function () {
-        confirm.innerHTML = "Czekaj...";
-        createCanvasScreenshot(view);
+
+
+        if (formValid()) {
+            confirm.innerHTML = "Czekaj...";
+            createCanvasScreenshot(view);
+        }
 
     });
 
     var screenShotBtn = document.getElementById("screenShotBtn");
-
-    //screenShotBtn.addEventListener("click", function () {
-    //    createCanvasScreenshot(view);
-
-    //});
 
      var input = document.getElementById("file");
      input.addEventListener("change", function (ev) {
@@ -93,51 +83,6 @@ window.addEventListener("load", function () {
          else alert("Plik musi mieć rozszerzenie stl.");
      }, false);
 
-      // We can attach the `fileselect` event to all file inputs on the page
-  //$(document).on('change', ':file', function() {
-  //  var input = $(this),
-  //      numFiles = input.get(0).files ? input.get(0).files.length : 1,
-  //      label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-  //  input.trigger('fileselect', [numFiles, label]);
-  //});
-
-  //// We can watch for our custom `fileselect` event like this
-  //$(document).ready( function() {
-  //    $(':file').on('fileselect', function(event, numFiles, label) {
-
-  //        var input = $(this).parents('.input-group').find(':text'),
-  //            log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-  //        if( input.length ) {
-  //            input.val(log);
-  //        } else {
-  //            if( log ) alert(log);
-  //        }
-
-  //    });
-  //});
-
-	//var uploader = document.getElementById("uploader");
- //   // dnd
- //   uploader.addEventListener("dragover", function (ev) {
- //       ev.stopPropagation();
- //       ev.preventDefault();
- //       ev.dataTransfer.dropEffect = "copy";
- //   }, false);
- //   uploader.addEventListener("drop", function (ev) {
- //       ev.stopPropagation();
- //       ev.preventDefault();
- //       var file = ev.dataTransfer.files[0];
- //       if(checkForValidFileExtension(file.name)) openFile(file);
-	//	else alert("Plik musi mieć rozszerzenie stl.");
- //   }, false);
-
-    //confirm.addEventListener("click", function () {
-    //    var inputfile = document.getElementById(filename);
-    //    var files = inputfile.files;
-    //    var 
-
-    //});
 
 }, false);
 
@@ -159,48 +104,44 @@ function checkForValidFileExtension(elemVal)
     return false;
 }
 
+function formValid()
+{
+    var projectName = $("#projectName").val();
+
+    var validator = true;
+
+    var alphNum = /^[a-zA-Z0-9]+$/;
+
+    validator = alphNum.test(projectName) && projectName.length > 1;
+
+    return validator;
+}
+
 function createCanvasScreenshot(canvas)
 {
     var _url = 'UploadImage';
+
+    var projectName = $("#projectName").val();
 
     var obj = document.querySelector('#view > canvas:nth-child(1)').toDataURL("image/png");
 
     obj = obj.replace('data:image/png;base64,', '');
 
-    var screen = { "File": obj };
+    var screen = { "File": obj, "ProjectName": projectName};
 
-    //alert(JSON.stringify(obj));
-
-    $.ajax({
-        method: "POST",
-        url: _url,
-        data: JSON.stringify(screen),
-        dataType: 'JSON',
-        contentType: "application/json; charset=utf-8"
-    });
-        //.done(function (msg) {
-        //    //alert( "Done [string]: " + msg );
-        //    var parse_obj = JSON.parse(msg);
-        //    alert("Done: " + parse_obj.imie);
-        //})
-        //.fail(function (msg) {
-        //    alert("Fail [string]: " + msg);
-        //});
+    if (obj != null || obj != "") {
+        $.ajax({
+            method: "POST",
+            url: _url,
+            data: JSON.stringify(screen),
+            dataType: 'JSON',
+            contentType: "application/json; charset=utf-8"
+        });
+    }
+    else {
+        alert("Nie wybrano pliku");
+        document.getElementById("confirm").innerHTML = "Drukuj";
+    }
 
 
-
-    ////data: '{ "imageData" : "' + dataURL + '" }'{ "imageData" :  + dataURL },
-
-    //alert(dataURL);
-
-    //$.ajax({
-    //    type: 'POST',
-    //    url: _url,
-    //    contentType: 'application/json; charset=utf-8',
-    //    data: { "imageData": + dataURL },
-    //    dataType: 'json',
-    //    success: function (msg) {
-    //        alert('Image saved successfully !');
-    //    }
-    //});
 }

@@ -117,6 +117,26 @@ namespace Drukarka3DData.Migrations
                     b.ToTable("Order");
                 });
 
+            modelBuilder.Entity("Drukarka3DData.Models.UserFavoriteProject", b =>
+                {
+                    b.Property<int>("UserFavoriteProjectId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IsRated");
+
+                    b.Property<int>("OrderId");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("UserFavoriteProjectId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserFavouriteProject");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -228,7 +248,19 @@ namespace Drukarka3DData.Migrations
             modelBuilder.Entity("Drukarka3DData.Models.Order", b =>
                 {
                     b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Drukarka3DData.Models.UserFavoriteProject", b =>
+                {
+                    b.HasOne("Drukarka3DData.Models.Order", "Order")
                         .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Drukarka3DData.Models.ApplicationUser", "User")
+                        .WithMany("FavouriteProjects")
                         .HasForeignKey("UserId");
                 });
 

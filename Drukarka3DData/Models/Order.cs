@@ -23,6 +23,8 @@ namespace Drukarka3DData.Models
         //[Required]
         //public double AverageUsersRate { get; set; }
         public DateTime UploadDate { get; set; }
-        public ApplicationUser User { get; set; }
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual ApplicationUser User { get; set; }
     }
 }

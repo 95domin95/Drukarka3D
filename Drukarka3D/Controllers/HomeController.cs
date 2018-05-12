@@ -25,6 +25,7 @@ namespace Drukarka3D.Controllers
     public class CanvasScreenshot
     {
         public string File { get; set; }
+        public string ProjectName { get; set; }
     }
 
     public class Rating
@@ -77,14 +78,14 @@ namespace Drukarka3D.Controllers
             this.fileProvider = fileProvider;
         }
 
-        public void ForwardFiles(string pathForStl)
+        public void ForwardFiles(string pathForStl, string fileName)
         {
-            var adressFTP = "http://192.168.43.155:5000:23";
+            var adressFTP = "ftp://192.168.43.155:21";
             var usrNameFTP = "drukarka";
             var passwordFTP = "ZAQ!2wsx";
 
             // Get the object used to communicate with the server.  
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(adressFTP);
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(adressFTP + @"/" + fileName);
             request.Method = WebRequestMethods.Ftp.UploadFile;
 
             // This example assumes the FTP site uses anonymous logon.  
@@ -112,12 +113,45 @@ namespace Drukarka3D.Controllers
         {
             try
             {
-                string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length-2);
+                bool isRated = false;
+                bool isSignedIn = true;
+                bool isProjectOwner = false;
+
+                UserFavoriteProject project = default(UserFavoriteProject);
+
+                int tmp = Convert.ToInt32(param.Keys.ElementAt(0)
+                    .Substring(0, param.Keys.ElementAt(0).Length-2));
 
                 ICollection<Order> order = context.Order.Where(o => o
-                .OrderId.Equals(Convert.ToInt32(tmp))).ToList();
+                .OrderId.Equals(tmp)).ToList();
 
-                if (order == null) throw new NullReferenceException();
+                if (!signInManager.IsSignedIn(User)) isSignedIn = false;
+                else
+                {
+                    project = context.UserFavouriteProject
+                    .Where(p => p.Order.Equals(tmp)
+                    &&!(p.Order.UserId.Equals(userManager.GetUserId(HttpContext.User))))
+                    .FirstOrDefault();
+
+                    if (project != default(UserFavoriteProject))
+                    {
+                        if (project.IsRated.Equals(true)) isRated = true;
+
+                        project = context.UserFavouriteProject
+                        .Where(p => p.Order.Equals(tmp)
+                        && !(p.Order.UserId.Equals(userManager.GetUserId(HttpContext.User)))
+                        && p.UserId.Equals(userManager.GetUserId(HttpContext.User)))
+                        .FirstOrDefault();
+
+                        if (project != default(UserFavoriteProject))
+                        {
+                            isProjectOwner = true;
+                        }
+
+                    }
+                }
+
+                //if (order == null) throw new NullReferenceException();
 
                 order.First().ViewsCount += 1;
                 context.SaveChanges();
@@ -129,27 +163,45 @@ namespace Drukarka3D.Controllers
                     SortingType = String.Empty,
                     SearchString = String.Empty,
                     SortingOrder = String.Empty,
-                    Order = order
+                    Order = order,
+                    IsRated = isRated,
+                    IsProjectOwner = isProjectOwner,
+                    IsSignedIn = isSignedIn
                     
                 });
             }
             catch(Exception)
             {
-                return Error();
+                return Loader();
             }
         }
 
 
         [HttpPost]
-        public IActionResult UpdateRating([FromBody]Rating rating)
+        public async Task<IActionResult> UpdateRating([FromBody]Rating rating)
         {
-            Order userOrder = context.Order.Where(order => order.OrderId
-            .Equals(Convert.ToInt32(rating.Id))).First();
-            //(parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")) + parseFloat(@Model.ElementAt(j).RatingsCount)) / Boolean(@Model.ElementAt(j).RatingsCount.Equals(0)) ? 1 : @Model.ElementAt(j).RatingsCount};),
-            userOrder.RatingsCount += 1;
-            userOrder.RatingsSum += rating.Rate;
-            userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum)/(userOrder.RatingsCount));
-            context.SaveChanges();
+            var userOrder = context.Order.Where(order => order.OrderId
+            .Equals(Convert.ToInt32(rating.Id))).FirstOrDefault();
+
+            var ifNotExsist = context.UserFavouriteProject
+                .Where(u => u.UserId.Equals(userManager.GetUserId(HttpContext.User))
+                && u.Order.Equals(userOrder)).FirstOrDefault();
+
+            if(ifNotExsist == default(UserFavoriteProject))
+            {
+                context.UserFavouriteProject.Add(new UserFavoriteProject()
+                {
+                    User = await userManager.GetUserAsync(HttpContext.User),
+                    Order = userOrder,
+                    IsRated = true
+                });
+
+                userOrder.RatingsCount += 1;
+                userOrder.RatingsSum += rating.Rate;
+                userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum) / (userOrder.RatingsCount));
+
+                context.SaveChanges();
+            }
 
             return RedirectToAction("ProjectsGallery");
         }
@@ -174,81 +226,100 @@ namespace Drukarka3D.Controllers
             return View(model);
         }
 
-        public IActionResult MyOrders()
-        {
-
-             ICollection<Order> userOrders = context.Order.Where(order => order.User.Id
-            .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderByDescending(order => order.UploadDate).ToList();
-
-            return View(userOrders);
-        }
-
-        [HttpPost]
-        public IActionResult MyOrders(string SearchString)
-        {
-            if (SearchString == null) SearchString = String.Empty;
-
-            ICollection<Order> userOrders = context.Order.Where(order => 
-            (order.Status.Contains(SearchString)
-            || order.UploadDate.ToString().Contains(SearchString)
-            || order.Name.Contains(SearchString)
-            || order.User.UserName.Contains(SearchString)))
-            .OrderByDescending(order => order.UploadDate).ToList();
-
-            return View(userOrders);
-        }
-
-        public IActionResult AllOrders()
-        {
-            ICollection<Order> latestOrders = context.Order.Select(order => order)
-            .OrderByDescending(order => order.UploadDate).ToList();
-
-            return View(latestOrders);
-        }
 
         [HttpPost]
         public async Task<IActionResult> UploadImage([FromBody]CanvasScreenshot screen)
         {
             try
             {
+                var user = await userManager.GetUserAsync(HttpContext.User);
+                if (CheckProjectNameAvailability(screen.ProjectName, user))
+                {
+                    return Json(screen);
+                }
+
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/");
 
-                string tmp = DateTime.Now.ToString().Replace("/", "-").Replace(" ", "-").Replace(":", "") + ".png";
+                var fileName = user.Id + screen.ProjectName + "thumb.png";
 
-                UserScreenPath = "/images/" + tmp;
-
-                string fileNameWitPath = "wwwroot/images/" + tmp;
-                using (FileStream fs = new FileStream(fileNameWitPath, FileMode.Create))
+                string fileNameWithPath = "wwwroot/images/" + fileName;
+                using (FileStream fs = new FileStream(fileNameWithPath, FileMode.Create))
                 {
                     using (BinaryWriter bw = new BinaryWriter(fs))
-                    {
-                        //await Response.WriteAsync("<script>alert('" + screen.File + "');</script>");
+                    {                      
                         byte[] data = Convert.FromBase64String(screen.File);
                         bw.Write(data);
                         bw.Close();
                     }
                 }
 
-                var usrOrder = new Order
-                {
-                    Status = "Przyjęto",
-                    User = await userManager.GetUserAsync(HttpContext.User),
-                    UploadDate = DateTime.Now,
-                    UserScreenPath = UserScreenPath
-                };
-
-                context.Order.Add(usrOrder);
-                context.SaveChanges();
-
-                return RedirectToAction("Loader");
+                return Json(screen);
             }
             catch (Exception ex)
             {               
-                //await Response.WriteAsync("<script>alert('"+ex.Message+"');</script>");
-                return RedirectToAction("Loader");
+                await Response.WriteAsync("<script>alert('"+ex.Message+"');</script>");
+                return Json(screen);
             }
 
+        }
+
+        public bool CheckProjectNameAvailability(string projectName, ApplicationUser user)
+        {
+            var allUsrProjects = context.Order.Where(o => o.Path.Equals(user.Id + projectName)).ToList();
+
+            return allUsrProjects.Count() != 0;
+        }
+
+        [HttpPost]
+        [RequestSizeLimit(100_000_000)]
+        public async Task<IActionResult> UploadFile(string projectName, string isPrivate, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
+                return RedirectToAction("Index");
+            }
+
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            if (CheckProjectNameAvailability(projectName, user))
+            {
+                await Response.WriteAsync("<script>alert('Już stworzyłeś projekt o takiej samej nazwie!')</script>");
+                return RedirectToAction("Index");
+            }
+
+            if (projectName == null||projectName == "") projectName = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", projectName);
+                        
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            if (isPrivate == null) isPrivate = "off";
+
+            context.Order.Add(new Order
+            {
+                Status = "Przyjęto",
+                User = user,
+                UserId = user.Id,
+                UploadDate = DateTime.Now,
+                Private = isPrivate.Equals("on") ? false : true,
+                Name = projectName,
+                Path = user.Id + projectName,
+                UserScreenPath = "/images/" + user.Id + projectName + "thumb.png"
+            });
+
+            context.SaveChanges();
+            
+            var pathForStl = Path.Combine(
+            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\", projectName);
+            DirectoryInfo d = new DirectoryInfo(pathForStl);
+            
+            //ForwardFiles(pathForStl, userOrder.Path);
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -267,125 +338,6 @@ namespace Drukarka3D.Controllers
             System.IO.File.Copy(path1, path2);
 
             return Json(new JsonResult(data));
-        }
-
-        [HttpPost]
-        [RequestSizeLimit(100_000_000)]
-        public async Task<IActionResult> UploadFile(string isPrivate, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                //await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
-                return RedirectToPagePermanent("Loader");
-                //return Content("file not selected");
-            }
-
-            string currentDate = DateTime.Now.ToString();
-            currentDate = currentDate.Replace(':', '_');
-            string fileName = currentDate + userManager.GetUserId(HttpContext.User) + file.GetFilename();
-
-            var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", fileName);
-                        
-
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            Order c = context.Order.Where(order => order.User.Id
-            .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderByDescending(order => order.UploadDate).First();
-
-            Order userOrder = (from p in context.Order
-                               where p.UploadDate.Equals(c.UploadDate)
-                               select p).SingleOrDefault();
-
-            if (isPrivate == null) isPrivate = "off";
-
-            if (userOrder != null)
-            {
-                userOrder.Private = isPrivate.Equals("on") ? false : true;
-                userOrder.Name = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
-                userOrder.Path = fileName;
-            }
-            context.SaveChanges();
-
-            var pathForStl = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\");
-            DirectoryInfo d = new DirectoryInfo(pathForStl);
-
-            //ForwardFiles(pathForStl);
-
-            //var pathForGCode = Path.Combine(
-            //Directory.GetCurrentDirectory(), "wwwroot\\Zatwierdzone\\");
-            //DirectoryInfo gcode = new DirectoryInfo(pathForGCode);
-
-            //var pathForSlicer = Path.Combine(
-            //Directory.GetCurrentDirectory(), "wwwroot\\slic3r\\slic3r\\Slic3r.exe ");
-            //DirectoryInfo slicer = new DirectoryInfo(pathForSlicer);
-
-            //foreach (var i in d.GetFiles("*.stl"))
-            //{
-            //    string strCmdText;
-            //    strCmdText = pathForSlicer + i.Directory+ "\\"+i+" --output "+gcode+i+".gcode";
-
-            //    System.Diagnostics.Process process = new System.Diagnostics.Process();
-            //    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            //    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            //    startInfo.FileName = "cmd.exe";
-            //    startInfo.Arguments = strCmdText;
-            //    process.StartInfo = startInfo;
-            //    process.Start();
-            //    process.WaitForExit(1000);
-
-            //    //Process.Start("CMD.exe", strCmdText);
-            //}
-
-            return RedirectToAction("Index");
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> UploadFiles(List<IFormFile> files)
-        {
-            if (files == null || files.Count == 0)
-                return Content("files not selected");
-
-            foreach (var file in files)
-            {
-                var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/",
-                        file.GetFilename());
-
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-            }
-            ViewData["Uploaded"] = "Pomyślnie przesłano plik";
-            return RedirectToAction("Loader");
-        }
-
-
-
-        [HttpPost]
-        public async Task<IActionResult> UploadFileViaModel(FileInputModel model)
-        {
-            if (model == null ||
-                model.FileToUpload == null || model.FileToUpload.Length == 0)
-                return Content("file not selected");
-
-            var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot",
-                        model.FileToUpload.GetFilename());
-
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await model.FileToUpload.CopyToAsync(stream);
-            }
-
-            return RedirectToAction("Files");
         }
 
         public IActionResult Files()

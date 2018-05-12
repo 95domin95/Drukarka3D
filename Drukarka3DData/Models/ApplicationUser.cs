@@ -13,5 +13,7 @@ namespace Drukarka3DData.Models
         public string PostCode { get; set; }
         public string Street { get; set; }
         public string ApartmentNumber { get; set; }
+        public virtual IEnumerable<Order> Orders { get; set; }
+        public virtual IEnumerable<UserFavoriteProject> FavouriteProjects { get; set; }
     }
 }

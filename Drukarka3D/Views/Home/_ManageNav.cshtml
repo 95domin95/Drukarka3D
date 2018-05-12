@@ -5,12 +5,21 @@
 }*@
 
 <div class="list-group">
-    <a class="list-group-item list-group-item-action" asp-action="ManageAccount">Profil</a>
-    <a class="list-group-item list-group-item-action" asp-action="ChangePassword">Zmień hasło</a>
-    @*@if (hasExternalLogins)
+    @if (ViewData["Title"].Equals("Profil"))
     {
-        <li class="@ManageNavPages.ExternalLoginsNavClass(ViewContext)"><a asp-action="ExternalLogins">External logins</a></li>
+        <a class="list-group-item list-group-item-action active" asp-action="ManageAccount">Profil</a>
+        <a class="list-group-item list-group-item-action" asp-action="ChangePassword">Zmień hasło</a>
     }
-    <li class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)"><a asp-action="TwoFactorAuthentication">Two-factor authentication</a></li>*@
+    else
+    {
+        <a class="list-group-item list-group-item-action" asp-action="ManageAccount">Profil</a>
+        <a class="list-group-item list-group-item-action active" asp-action="ChangePassword">Zmień hasło</a>
+    }
+
+    @*@if (hasExternalLogins)
+        {
+            <li class="@ManageNavPages.ExternalLoginsNavClass(ViewContext)"><a asp-action="ExternalLogins">External logins</a></li>
+        }
+        <li class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)"><a asp-action="TwoFactorAuthentication">Two-factor authentication</a></li>*@
 </div>
 

@@ -42,7 +42,9 @@
                     });
 
                     $("#@Model.Order.First().OrderId").rateYo({
+                        @{bool readOnly = !((!Model.IsRated) && (Model.IsSignedIn) && (!Model.IsProjectOwner));}
                         rating: parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")),
+                        readOnly: '@readOnly' === '@true',
                         onSet: function (rating, rateYoInstance) {
 
                             var data = { "Rate": rating, "Id": @Model.Order.First().OrderId.ToString() };
@@ -151,7 +153,7 @@
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
         <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>
         <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><button class="btn btn-default" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
-        <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px; margin-top: 5px;"><strong>Drukuj</strong></button>
+        @*<button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px; margin-top: 5px;"><strong>Drukuj</strong></button>*@
         @await Html.PartialAsync("_ProjectViewPartial")
     </div>
 </div>

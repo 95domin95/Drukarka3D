@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Drukarka3D.Services;
 using Drukarka3DData;
@@ -44,8 +47,11 @@ namespace Drukarka3D.Controllers
         [HttpPost]
         public IActionResult Print([FromBody]FileToPrint data)
         {
+            //var path1 = Path.Combine(
+            //Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
+
             var path1 = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", "kuter.stl");
 
             string currentDate = DateTime.Now.ToString();
             currentDate = currentDate.Replace(':', '_');
@@ -56,11 +62,15 @@ namespace Drukarka3D.Controllers
 
             System.IO.File.Copy(path1, path2);
 
+
+
+            ForwardFiles(path2, fileName);
+
             return Json(new JsonResult(data));
         }
         public async Task<IActionResult> Index(string filter = "", int page = 1, string sortExpression = "Status")
         {
-            var newestOrders = context.Order.AsNoTracking().Where(order => order.User.Id
+            var newestOrders = context.Order.AsNoTracking().Where(order => order.UserId
             .Equals(userManager.GetUserId(HttpContext.User)))
             .OrderByDescending(order => order.UploadDate).AsQueryable();
 
@@ -92,17 +102,57 @@ namespace Drukarka3D.Controllers
             return Ok(result);
         }
 
+        public void ForwardFiles(string pathForStl, string fileName)
+        {
+            var adressFTP = "ftp://192.168.43.155:21";
+            var usrNameFTP = "drukarka";
+            var passwordFTP = "ZAQ!2wsx";
+
+            // Get the object used to communicate with the server.  
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(adressFTP + @"/" + fileName);
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+
+            // This example assumes the FTP site uses anonymous logon.  
+            request.Credentials = new NetworkCredential(usrNameFTP, passwordFTP);
+
+            // Copy the contents of the file to the request stream.  
+            StreamReader sourceStream = new StreamReader(pathForStl);
+            byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+            string temp = String.Empty;
+            foreach(var i in fileContents)
+            {
+                temp += Convert.ToChar(i);
+            }
+            sourceStream.Close();
+            request.ContentLength = fileContents.Length;
+
+            Stream requestStream = request.GetRequestStream();
+            requestStream.Write(fileContents, 0, fileContents.Length);
+            requestStream.Close();
+
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+            Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);
+
+            response.Close();
+        }
+
+
+
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
         {
             try
             {
+                bool isRated = false;
+                bool isSignedIn = true;
+                bool isProjectOwner = true;
+
                 string tmp = param.Keys.ElementAt(0).Substring(0, param.Keys.ElementAt(0).Length - 2);
 
                 ICollection<Order> order = context.Order.Where(o => o
                 .OrderId.Equals(Convert.ToInt32(tmp))).ToList();
 
-                if (order == null) throw new NullReferenceException();
 
                 order.First().ViewsCount += 1;
                 context.SaveChanges();
@@ -114,7 +164,11 @@ namespace Drukarka3D.Controllers
                     SortingType = String.Empty,
                     SearchString = String.Empty,
                     SortingOrder = String.Empty,
-                    Order = order
+                    Order = order,
+                    IsRated = isRated,
+                    IsProjectOwner = isProjectOwner,
+                    IsSignedIn = isSignedIn
+
                 });
             }
             catch (Exception)

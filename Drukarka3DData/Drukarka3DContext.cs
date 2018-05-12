@@ -18,5 +18,6 @@ namespace Drukarka3DData
         //public DbSet<User> User { get; set; }
         //public DbSet<File> File { get; set; }
         public DbSet<Order> Order { get; set; }
+        public DbSet<UserFavoriteProject> UserFavouriteProject { get; set; }
     }
 }

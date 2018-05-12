@@ -10,7 +10,10 @@ namespace Drukarka3DData.Models
         public string SortingOrder { get; set; }
         public string SortingType { get; set; }
         public int PageNumber { get; set; }
+        public bool IsRated { get; set; }
+        public bool IsSignedIn { get; set; }
+        public bool IsProjectOwner { get; set; }
         public int NumberOfResolutsInPage { get; set; }
-        public IEnumerable<Order> Order { get; set; }
+        public virtual IEnumerable<Order> Order { get; set; }
     }
 }
