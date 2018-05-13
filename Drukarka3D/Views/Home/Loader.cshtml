@@ -7,15 +7,15 @@
 
 
 
-<div class="row">
+<div class="row box">
     <div class="col-xs-12">
-        <div id="view">
+        <div id="view" style="margin-top: 10px">
         </div>
     </div>
 
     <form asp-controller="Home" asp-action="UploadFile" method="post" enctype="multipart/form-data">
         <div class="col-xs-12" style="margin-top:10px">
-            <label class="btn btn-default btn-file">Wybierz plik<input type="file" name="file" id="file" accept=".stl"/></label>
+            <label class="btn btn-primary btn-file">Wybierz plik<input type="file" name="file" id="file" accept=".stl"/></label>
             <br />
             <br />
         </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="col-xs-12">
 
-            <button type="submit" class="btn btn-default" id="confirm">Wyślij</button>
+            <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px">Wyślij</button>
         </div>
        
     </form>

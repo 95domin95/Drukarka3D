@@ -6,14 +6,14 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="active"><a href="@Url.Action("Loader","Home")"><strong>Drukuj</strong> <span class="sr-only">(current)</span></a></li>
-    <li class="dropdown">
+    <li style="background-color: #b3ffff"><a href="@Url.Action("Loader","Home")"><strong>Drukuj</strong> <span class="sr-only">(current)</span></a></li>
+    <li class="dropdown" id="navbar-dropdown-btn">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User) <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-            <li><a href="@Url.Action("Index","Account")">Moje Projekty</a></li>
-            <li><a href="@Url.Action("ManageAccount", "Home")">Moje konto</a></li>
+        <ul class="dropdown-menu" style="background-color: lightcyan;">
+            <li ><a class="navbar-dropdown-option"href="@Url.Action("Index","Account")">Moje Projekty</a></li>
+            <li class="navbar-dropdown-option"><a href="@Url.Action("ManageAccount", "Home")">Moje konto</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="@Url.Action("LogOut","Home")">Wyloguj</a></li>
+            <li class="navbar-dropdown-option"><a href="@Url.Action("LogOut","Home")">Wyloguj</a></li>
         </ul>
     </li>
 }

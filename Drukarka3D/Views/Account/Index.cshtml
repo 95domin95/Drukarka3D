@@ -24,6 +24,7 @@
                 <option value="UploadDate" selected="selected">Najnowsze</option>
                 <option value="Name">Alfabetycznie</option>
                 <option value="ViewsCount">Liczba wyświetleń</option>
+                <option value="Likes">Liczba polubień</option>
             </select>
         </div>
         <div class="col-sm-4">
@@ -55,9 +56,9 @@
             </div>
             <input type="text" class="form-control" placeholder="Wpisz frazę..." name="filter" value="@Model.RouteValue["Filter"]" />
         </div>
-                <div class="col-sm-6">
+        <div class="col-sm-6" style="background-color: #b3ffff; padding-bottom: 5px; margin-top: 5px;">
         <div>
-        <strong>Zawartość strony:</strong>
+        <strong style="font-size: larger">Zawartość strony:</strong>
             </div>
             <select name="viewType" class="form-control">
                 @{ List<string> viewTypeValue = new List<string>();
@@ -94,14 +95,14 @@
                         <input type="image" src="@Model.ElementAt(j).UserScreenPath" class="img-responsive" name="@Model.ElementAt(j).OrderId" />
                     </form>
                     <div class="img-gallery-img-footer">
-                        <div class="image-caption-div">@Model.ElementAt(j).Name</div>
+                        <div class="image-caption-div"><span class="glyphicon glyphicon-thumbs-up" style="font-size: x-large"></span><div style="font-size: large">@Model.ElementAt(j).Likes</div></div>
                         <div id="rateYo-@Model.ElementAt(j).OrderId" style="float: right"></div>
                         <script>
 
                                 $("#rateYo-@Model.ElementAt(j).OrderId").rateYo({
             rating: (parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")))/5,
                                     maxValue: 1,
-                                    numStars: 1,
+                                    numStars: 5,
                                     starWidth: "40px",
                                     readOnly: true
                                 });

@@ -155,7 +155,7 @@ namespace Drukarka3D.Controllers
             {
                 newestOrders = context.Order.AsNoTracking().Where(order => order.UserId
                 .Equals(userManager.GetUserId(HttpContext.User)))
-                .OrderByDescending(order => order.UploadDate).AsQueryable();
+                .OrderBy(order => order.UploadDate).AsQueryable();
 
                 ViewData["Title"] = "Moje Projekty";
                 viewType = "Moje Projekty";

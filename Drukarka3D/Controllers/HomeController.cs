@@ -149,13 +149,12 @@ namespace Drukarka3D.Controllers
                         if (project != default(UserFavoriteProject))
                         {
                             isProjectOwner = true;
+
+                            if (project.IsFavourite.Equals(true))
+                            {
+                                isLiked = true;
+                            }
                         }                        
-
-                        if (project.IsFavourite.Equals(true))
-                        {
-                            isLiked = true;
-                        }
-
                     }
                 }
 
@@ -275,7 +274,7 @@ namespace Drukarka3D.Controllers
         public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status", int onPage=20)
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
-            .OrderByDescending(order => order.UploadDate).AsQueryable();
+            .OrderBy(order => order.UploadDate).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -360,7 +359,7 @@ namespace Drukarka3D.Controllers
 
             if (projectName == null||projectName == "") projectName = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", projectName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", user.Id + projectName + ".stl");
                         
             using (var stream = new FileStream(path, FileMode.Create))
             {
@@ -377,7 +376,7 @@ namespace Drukarka3D.Controllers
                 UploadDate = DateTime.Now,
                 Private = isPrivate.Equals("on") ? false : true,
                 Name = projectName,
-                Path = user.Id + projectName,
+                Path = user.Id + projectName + ".stl",
                 UserScreenPath = "/images/" + user.Id + projectName + "thumb.png"
             });
 
