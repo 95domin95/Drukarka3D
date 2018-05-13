@@ -8,11 +8,11 @@ namespace Drukarka3DData.Models
 {
     public class ChangePasswordViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Pole wymagane")]
         [DataType(DataType.Password)]
         [Display(Name = "Aktualne hasło")]
         public string OldPassword { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Pole wymagane")]
         [StringLength(100, ErrorMessage = "Hasło {0} musi mieć conajmniej {2} i maksymalnie {1} znaków długości.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Nowe hasło")]

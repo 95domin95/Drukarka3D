@@ -81,6 +81,7 @@
 
                     $("#@Model.Order.First().OrderId").rateYo({
                         rating: parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")),
+                        readOnly: true,
                         onSet: function (rating, rateYoInstance) {
 
                             var data = { "Rate": rating, "Id": @Model.Order.First().OrderId.ToString() };
@@ -189,6 +190,11 @@
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
         <div class="col-sm-12">Status: @Model.Order.First().Status</div>
         <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>
+        <div class="col-sm-12">
+            <button type="submit" class="btn btn-link" id="like-btn" disabled>
+                <span class="glyphicon glyphicon-thumbs-up" style="font-size: x-large"></span><div style="font-size: large">@Model.LikesCount</div>
+            </button>
+        </div>
         <div class="col-sm-12" style="margin-bottom: 10px;"><button class="btn btn-default" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
     </div>
 </div>

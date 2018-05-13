@@ -11,9 +11,10 @@ using System;
 namespace Drukarka3DData.Migrations
 {
     [DbContext(typeof(Drukarka3DContext))]
-    partial class Drukarka3DContextModelSnapshot : ModelSnapshot
+    [Migration("20180512223218_NewMigration12")]
+    partial class NewMigration12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,8 +88,6 @@ namespace Drukarka3DData.Migrations
                 {
                     b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<int>("Likes");
 
                     b.Property<string>("Name");
 

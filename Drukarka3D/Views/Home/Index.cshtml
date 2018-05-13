@@ -21,24 +21,37 @@
                 <option value="ViewsCount">Liczba wyświetleń</option>
             </select>
         </div>
-        @*<div class="col-sm-4">
+        <div class="col-sm-4">
             <div class="gallery-search-inputs">
                 Elementów na stronie:
             </div>
             <select name="onPage" class="form-control">
-                <option value="10" selected="selected">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                @{ List<int> onPageValue = new List<int>();
+                    onPageValue.Add(10); onPageValue.Add(20);
+                    onPageValue.Add(50); onPageValue.Add(100);}
+                @foreach(var i in onPageValue)
+                {
+                    @if(i.Equals(Convert.ToInt32(Model.RouteValue["onPage"])))
+                    {
+                        <option value="@i" selected>@i</option>
+                    }
+                    else
+                    {
+                        <option value="@i">@i</option>
+
+                    }
+
+                }
             </select>
-        </div>*@
+        </div>
         <div class="col-sm-4">
             <div class="gallery-search-inputs">
                 Wyszukaj:
             </div>
             <input type="text" class="form-control" placeholder="Wpisz frazę..." name="filter" value="@Model.RouteValue["Filter"]" />
         </div>
-        <div class="col-sm-4" style="margin-top: 15px">
+
+        <div class="col-sm-12" style="margin-top: 15px">
             <button type="submit" class="btn btn-primary"><strong>Filtruj</strong></button>
         </div>
     </form>

@@ -11,9 +11,10 @@ using System;
 namespace Drukarka3DData.Migrations
 {
     [DbContext(typeof(Drukarka3DContext))]
-    partial class Drukarka3DContextModelSnapshot : ModelSnapshot
+    [Migration("20180513170317_NewMigration13")]
+    partial class NewMigration13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

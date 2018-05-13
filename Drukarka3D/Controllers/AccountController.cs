@@ -68,22 +68,127 @@ namespace Drukarka3D.Controllers
 
             return Json(new JsonResult(data));
         }
-        public async Task<IActionResult> Index(string filter = "", int page = 1, string sortExpression = "Status")
+
+        public async Task<IActionResult> FavouriteProjects(string filter = "", int page = 1,
+            string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20)
         {
-            var newestOrders = context.Order.AsNoTracking().Where(order => order.UserId
-            .Equals(userManager.GetUserId(HttpContext.User)))
-            .OrderByDescending(order => order.UploadDate).AsQueryable();
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            IEnumerable<UserFavoriteProject> projects = context.UserFavouriteProject.Where(p => p.UserId.Equals(user.Id)
+            && p.Order.Name.Contains(filter));
+
+            var orders = from p in context.UserFavouriteProject
+                         join o in context.Order on p.OrderId equals o.OrderId
+                         select o;
+
+
+            switch(sortExpression)
+            {
+                case "Status":
+                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.Status);
+                    else if(sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.Status);
+                    break;
+                case "ViewsCount":
+                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.ViewsCount);
+                    else if (sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.ViewsCount);
+                    break;
+                case "UploadDate":
+                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.UploadDate);
+                    else if (sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.UploadDate);
+                    break;
+                case "Rate":
+                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.Rate);
+                    else if (sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.Rate);
+                    break;
+                default:
+                    break;
+            }
+
+            List<string> sortExpressionValues = new List<string>();
+            sortExpressionValues.Add("UploadDate");
+            sortExpressionValues.Add("Status");
+            sortExpressionValues.Add("Name");
+            sortExpressionValues.Add("ViewsCount");
+
+            List<string> sortingOrderValues = new List<string>();
+            sortingOrderValues.Add("Ascending");
+            sortingOrderValues.Add("Descending");
+
+            List<int> elementsOnPageValues = new List<int>();
+            elementsOnPageValues.Add(10);
+            elementsOnPageValues.Add(20);
+            elementsOnPageValues.Add(30);
+            elementsOnPageValues.Add(40);
+            elementsOnPageValues.Add(50);
+
+            var elementsOnLastPage = projects.Count() % elementsOnPage;
+
+            var numberOfPages = (int)(projects.Count() / elementsOnPage);
+
+            var elementsToShow = elementsOnPage;
+
+            if (page.Equals(numberOfPages)) elementsToShow = elementsOnLastPage;
+
+            projects = projects.Skip(page * elementsOnPage).Take(elementsToShow);
+
+            return View(new FavouriteProjectsViewModel()
+            {
+                Orders = orders,
+                ElementsOnPage = elementsOnPage,
+                Filter = filter,
+                Page = page,
+                SortExpression = sortExpression,
+                SortingOrder = sortOrder,
+                SortExpressionValues = sortExpressionValues,
+                SortingOrderValues = sortingOrderValues,
+                ElementsOnPageValues = elementsOnPageValues
+
+            });
+        }
+  
+
+        public async Task<IActionResult> Index(string filter = "", int page = 1, 
+            string sortExpression = "Status", int onPage = 20, string viewType= "Moje Projekty")
+        {
+            IQueryable<Order> newestOrders = null;
+            if (viewType.Equals("Moje Projekty"))
+            {
+                newestOrders = context.Order.AsNoTracking().Where(order => order.UserId
+                .Equals(userManager.GetUserId(HttpContext.User)))
+                .OrderByDescending(order => order.UploadDate).AsQueryable();
+
+                ViewData["Title"] = "Moje Projekty";
+                viewType = "Moje Projekty";
+            }
+            else if(viewType.Equals("Ulubione"))
+            {
+                var user = await userManager.GetUserAsync(HttpContext.User);
+
+                //IEnumerable<UserFavoriteProject> projects = context.UserFavouriteProject.Where(p => p.UserId.Equals(user.Id));
+
+                newestOrders = from p in context.UserFavouriteProject
+                             join o in context.Order on p.OrderId equals o.OrderId
+                             select o;
+
+                if(newestOrders.Count()>0) newestOrders = newestOrders.OrderByDescending(order => order.UploadDate).AsQueryable();
+
+                ViewData["Title"] = "Ulubione";
+                viewType = "Ulubione";
+            }
+
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
                 newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
             }
 
-            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");
+            var model = await PagingList.CreateAsync(newestOrders, onPage, page, sortExpression, "Status");
 
             model.RouteValue = new RouteValueDictionary
             {
-                { "filter", filter}
+                { "filter", filter},
+                { "onPage", onPage},
+                { "viewType", viewType}
             };
             return View(model);
         }
@@ -138,7 +243,6 @@ namespace Drukarka3D.Controllers
         }
 
 
-
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
         {
@@ -167,7 +271,8 @@ namespace Drukarka3D.Controllers
                     Order = order,
                     IsRated = isRated,
                     IsProjectOwner = isProjectOwner,
-                    IsSignedIn = isSignedIn
+                    IsSignedIn = isSignedIn,
+                    LikesCount = order.FirstOrDefault().Likes
 
                 });
             }

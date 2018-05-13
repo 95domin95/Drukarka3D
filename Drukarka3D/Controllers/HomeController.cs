@@ -27,6 +27,10 @@ namespace Drukarka3D.Controllers
         public string File { get; set; }
         public string ProjectName { get; set; }
     }
+    public class Like
+    {
+        public int OrderId { get; set; }
+    }
 
     public class Rating
     {
@@ -116,6 +120,7 @@ namespace Drukarka3D.Controllers
                 bool isRated = false;
                 bool isSignedIn = true;
                 bool isProjectOwner = false;
+                bool isLiked = false;
 
                 UserFavoriteProject project = default(UserFavoriteProject);
 
@@ -129,8 +134,7 @@ namespace Drukarka3D.Controllers
                 else
                 {
                     project = context.UserFavouriteProject
-                    .Where(p => p.Order.Equals(tmp)
-                    &&!(p.Order.UserId.Equals(userManager.GetUserId(HttpContext.User))))
+                    .Where(p => p.OrderId.Equals(tmp))
                     .FirstOrDefault();
 
                     if (project != default(UserFavoriteProject))
@@ -139,13 +143,17 @@ namespace Drukarka3D.Controllers
 
                         project = context.UserFavouriteProject
                         .Where(p => p.Order.Equals(tmp)
-                        && !(p.Order.UserId.Equals(userManager.GetUserId(HttpContext.User)))
                         && p.UserId.Equals(userManager.GetUserId(HttpContext.User)))
                         .FirstOrDefault();
 
                         if (project != default(UserFavoriteProject))
                         {
                             isProjectOwner = true;
+                        }                        
+
+                        if (project.IsFavourite.Equals(true))
+                        {
+                            isLiked = true;
                         }
 
                     }
@@ -166,7 +174,9 @@ namespace Drukarka3D.Controllers
                     Order = order,
                     IsRated = isRated,
                     IsProjectOwner = isProjectOwner,
-                    IsSignedIn = isSignedIn
+                    IsSignedIn = isSignedIn,
+                    IsLiked = isLiked,
+                    LikesCount = order.FirstOrDefault().Likes
                     
                 });
             }
@@ -175,38 +185,94 @@ namespace Drukarka3D.Controllers
                 return Loader();
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> AddToFavourites([FromBody]Like like)
+        {
+            if (signInManager.IsSignedIn(User))
+            {
+                var userOrder = context.Order.Where(order => order.OrderId
+                .Equals(Convert.ToInt32(like.OrderId))).FirstOrDefault();
 
+                var favoriteProject = context.UserFavouriteProject
+                .Where(u => u.UserId.Equals(userManager.GetUserId(HttpContext.User))
+                && u.Order.Equals(userOrder)).FirstOrDefault();
+
+                if (favoriteProject == default(UserFavoriteProject))
+                {
+                    context.UserFavouriteProject.Add(new UserFavoriteProject()
+                    {
+                        User = await userManager.GetUserAsync(HttpContext.User),
+                        Order = userOrder,
+                        IsFavourite = true
+                    });
+
+                    userOrder.Likes += 1;
+
+                    context.SaveChanges();
+                }
+                else
+                {
+                    if (!favoriteProject.IsFavourite)
+                    {
+                        favoriteProject.IsFavourite = true;
+
+                        userOrder.Likes += 1;
+
+                        context.SaveChanges();
+                    }
+
+                }
+            }
+
+            return Json(like);
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateRating([FromBody]Rating rating)
         {
-            var userOrder = context.Order.Where(order => order.OrderId
-            .Equals(Convert.ToInt32(rating.Id))).FirstOrDefault();
-
-            var ifNotExsist = context.UserFavouriteProject
-                .Where(u => u.UserId.Equals(userManager.GetUserId(HttpContext.User))
-                && u.Order.Equals(userOrder)).FirstOrDefault();
-
-            if(ifNotExsist == default(UserFavoriteProject))
+            if(signInManager.IsSignedIn(User))
             {
-                context.UserFavouriteProject.Add(new UserFavoriteProject()
+                var userOrder = context.Order.Where(order => order.OrderId
+                .Equals(Convert.ToInt32(rating.Id))).FirstOrDefault();
+
+                var favoriteProject = context.UserFavouriteProject
+                    .Where(u => u.UserId.Equals(userManager.GetUserId(HttpContext.User))
+                    && u.Order.Equals(userOrder)).FirstOrDefault();
+
+                if (favoriteProject == default(UserFavoriteProject))
                 {
-                    User = await userManager.GetUserAsync(HttpContext.User),
-                    Order = userOrder,
-                    IsRated = true
-                });
+                    context.UserFavouriteProject.Add(new UserFavoriteProject()
+                    {
+                        User = await userManager.GetUserAsync(HttpContext.User),
+                        Order = userOrder,
+                        IsRated = true
+                    });
 
-                userOrder.RatingsCount += 1;
-                userOrder.RatingsSum += rating.Rate;
-                userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum) / (userOrder.RatingsCount));
+                    userOrder.RatingsCount += 1;
+                    userOrder.RatingsSum += rating.Rate;
+                    userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum) / (userOrder.RatingsCount));
 
-                context.SaveChanges();
+                    context.SaveChanges();
+                }
+                else
+                {
+                    if (!favoriteProject.IsRated)
+                    {
+                        favoriteProject.IsRated = true;
+
+                        userOrder.RatingsCount += 1;
+                        userOrder.RatingsSum += rating.Rate;
+                        userOrder.Rate = Convert.ToSingle((userOrder.RatingsSum) / (userOrder.RatingsCount));
+
+                        context.SaveChanges();
+                    }
+                }
             }
 
             return RedirectToAction("ProjectsGallery");
         }
 
-        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status")
+        public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status", int onPage=20)
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
             .OrderByDescending(order => order.UploadDate).AsQueryable();
@@ -216,11 +282,15 @@ namespace Drukarka3D.Controllers
                 newestOrders = newestOrders.Where(order => order.Name.Contains(filter));
             }
 
-            var model = await PagingList.CreateAsync(newestOrders, 16, page, sortExpression, "Status");
+            ViewData["onPage"] = onPage;
+
+            var model = await PagingList.CreateAsync(newestOrders, onPage, page, sortExpression, "Status");
+
 
             model.RouteValue = new RouteValueDictionary
             {
-                { "filter", filter}
+                { "filter", filter},
+                { "onPage", onPage}
             };
 
             return View(model);
