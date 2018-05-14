@@ -22,33 +22,34 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Drukarka3D.Controllers
 {
+    
     public class CanvasScreenshot
     {
         public string File { get; set; }
         public string ProjectName { get; set; }
-    }
+    }//Dawid
     public class Like
     {
         public int OrderId { get; set; }
-    }
+    }//Kamil
 
     public class Rating
     {
         public double Rate { get; set; }
 
         public string Id { get; set; }
-    }
+    }//Kamil
 
     public class MyProjectsForm
     {
         public string UserName { get; set; }
         public string SearchString { get; set; }
-    }
+    }//Dawid
 
     public class FileToPrint
     {
         public string FilePath { get; set; }
-    }
+    }//Dominik
 
     public class ProjectViewForm
     {
@@ -57,7 +58,7 @@ namespace Drukarka3D.Controllers
         public string NumberOfResolutsInPage { get; set; }
         public string SortingType { get; set; }
         public string SortingOrder { get; set; }
-    }
+    }//Kamil
 
     public class HomeController : Controller
     {
@@ -67,6 +68,7 @@ namespace Drukarka3D.Controllers
         private readonly IFileProvider fileProvider;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+        //Dawid
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -80,7 +82,7 @@ namespace Drukarka3D.Controllers
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.fileProvider = fileProvider;
-        }
+        }//Dominik
 
         public void ForwardFiles(string pathForStl, string fileName)
         {
@@ -110,7 +112,7 @@ namespace Drukarka3D.Controllers
             Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);
 
             response.Close();
-        }
+        }//Kamil
 
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
@@ -183,7 +185,7 @@ namespace Drukarka3D.Controllers
             {
                 return Loader();
             }
-        }
+        }//Dominik
         [HttpPost]
         public async Task<IActionResult> AddToFavourites([FromBody]Like like)
         {
@@ -224,7 +226,7 @@ namespace Drukarka3D.Controllers
             }
 
             return Json(like);
-        }
+        }//Dawid
 
         [HttpPost]
         public async Task<IActionResult> UpdateRating([FromBody]Rating rating)
@@ -269,7 +271,7 @@ namespace Drukarka3D.Controllers
             }
 
             return RedirectToAction("ProjectsGallery");
-        }
+        }//Kamil
 
         public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status", int onPage=20)
         {
@@ -293,7 +295,7 @@ namespace Drukarka3D.Controllers
             };
 
             return View(model);
-        }
+        }//Dominik
 
 
         [HttpPost]
@@ -330,14 +332,14 @@ namespace Drukarka3D.Controllers
                 return Json(screen);
             }
 
-        }
+        }//Dominik
 
         public bool CheckProjectNameAvailability(string projectName, ApplicationUser user)
         {
             var allUsrProjects = context.Order.Where(o => o.Path.Equals(user.Id + projectName)).ToList();
 
             return allUsrProjects.Count() != 0;
-        }
+        }//Dawid
 
         [HttpPost]
         [RequestSizeLimit(100_000_000)]
@@ -389,7 +391,7 @@ namespace Drukarka3D.Controllers
             //ForwardFiles(pathForStl, userOrder.Path);
 
             return RedirectToAction("Index");
-        }
+        }//Dominik
 
         [HttpPost]
         public IActionResult Print([FromBody]FileToPrint data)
@@ -407,7 +409,7 @@ namespace Drukarka3D.Controllers
             System.IO.File.Copy(path1, path2);
 
             return Json(new JsonResult(data));
-        }
+        }//Dominik
 
         public IActionResult Files()
         {
@@ -418,7 +420,7 @@ namespace Drukarka3D.Controllers
                     new FileDetails { Name = item.Name, Path = item.PhysicalPath });
             }
             return View(model);
-        }
+        }//Dawid
 
         public async Task<IActionResult> Download(string filename)
         {
@@ -445,14 +447,14 @@ namespace Drukarka3D.Controllers
                 return RedirectToAction("Loader");
             }
 
-        }
+        }//Kamil
 
         private string GetContentType(string path)
         {
             var types = GetMimeTypes();
             var ext = Path.GetExtension(path).ToLowerInvariant();
             return types[ext];
-        }
+        }//Dominik
 
         private Dictionary<string, string> GetMimeTypes()
         {
@@ -471,7 +473,7 @@ namespace Drukarka3D.Controllers
                 {".csv", "text/csv"},
                 {".stl", "application/vnd.ms-pki.stl"}
             };
-        }
+        }//Dominik
 
         [Authorize]
         public IActionResult Loader()
@@ -483,19 +485,19 @@ namespace Drukarka3D.Controllers
             }
             else return RedirectToAction("Index","Home");
 
-        }
+        }//Dominik
 
         public async Task<IActionResult> LogOut()
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("Login", "Home");
-        }
+        }//Kamil
 
         [HttpGet]
         public IActionResult Login()
         {
             return View();
-        }
+        }//Kamil
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel vm)
@@ -511,14 +513,14 @@ namespace Drukarka3D.Controllers
                 return View(vm);
             }
             return View(vm);
-        }
+        }//Dawid
 
         [HttpGet]
         public IActionResult Register()
         {
             ViewData["Title"] = "Rejestracja";
             return View();
-        }
+        }//Dawid
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel vm)
@@ -542,7 +544,7 @@ namespace Drukarka3D.Controllers
                 }
             }
             return View(vm);
-        }
+        }//Kamil
 
         [HttpGet]
         public async Task<IActionResult> ChangePassword()
@@ -561,7 +563,7 @@ namespace Drukarka3D.Controllers
 
             var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };
             return View(model);
-        }
+        }//Dominik
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -589,7 +591,7 @@ namespace Drukarka3D.Controllers
             StatusMessage = "Your password has been changed.";
 
             return RedirectToAction(nameof(ChangePassword));
-        }
+        }//Dominik
 
         [HttpGet]
         public async Task<IActionResult> SetPassword()
@@ -609,7 +611,7 @@ namespace Drukarka3D.Controllers
 
             var model = new SetPasswordViewModel { StatusMessage = StatusMessage };
             return View(model);
-        }
+        }//Kamil
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -637,7 +639,7 @@ namespace Drukarka3D.Controllers
             StatusMessage = "Your password has been set.";
 
             return RedirectToAction(nameof(SetPassword));
-        }
+        }//Dawid
 
         [HttpGet]
         public async Task<IActionResult> ManageAccount()
@@ -664,7 +666,7 @@ namespace Drukarka3D.Controllers
             };
 
             return View(model);
-        }
+        }//Kamil
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -751,7 +753,7 @@ namespace Drukarka3D.Controllers
 
             StatusMessage = "Your profile has been updated";
             return RedirectToAction(nameof(ManageAccount));
-        }
+        }//Dominik
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]
@@ -783,11 +785,11 @@ namespace Drukarka3D.Controllers
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-        }
+        }//Dominik
 
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        }//Dawid
     }
 }

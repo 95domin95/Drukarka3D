@@ -23,7 +23,7 @@ namespace Drukarka3D.Controllers
     {
         public string Id { get; set; }
         public string IsPrivate { get; set; }
-    }
+    }//Dawid
     public class AccountController : Controller
     {
         public string UserScreenPath { get; set; }
@@ -42,7 +42,7 @@ namespace Drukarka3D.Controllers
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.fileProvider = fileProvider;
-        }
+        }//Kamil
 
         [HttpPost]
         public IActionResult Print([FromBody]FileToPrint data)
@@ -67,7 +67,7 @@ namespace Drukarka3D.Controllers
             ForwardFiles(path2, fileName);
 
             return Json(new JsonResult(data));
-        }
+        }//Dominik
 
         public async Task<IActionResult> FavouriteProjects(string filter = "", int page = 1,
             string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20)
@@ -144,7 +144,7 @@ namespace Drukarka3D.Controllers
                 ElementsOnPageValues = elementsOnPageValues
 
             });
-        }
+        }//Dawid
   
 
         public async Task<IActionResult> Index(string filter = "", int page = 1, 
@@ -191,7 +191,7 @@ namespace Drukarka3D.Controllers
                 { "viewType", viewType}
             };
             return View(model);
-        }
+        }//Kamil
 
         [HttpPost]
         public IActionResult ProjectShare([FromBody]ProjectPrivacy privacy)
@@ -205,7 +205,7 @@ namespace Drukarka3D.Controllers
             context.SaveChanges();
 
             return Ok(result);
-        }
+        }//Dominik
 
         public void ForwardFiles(string pathForStl, string fileName)
         {
@@ -240,7 +240,7 @@ namespace Drukarka3D.Controllers
             Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);
 
             response.Close();
-        }
+        }//Dominik
 
 
         [HttpPost]
@@ -280,6 +280,6 @@ namespace Drukarka3D.Controllers
             {
                 return View();
             }
-        }
+        }//Dawid
     }
 }
