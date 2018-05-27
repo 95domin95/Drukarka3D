@@ -32,7 +32,7 @@ navbar-dropdown-option {
     font-size: larger;
     text-align: center;
     min-height: 40px;
-    float: left;
+    float: right;
     display: flex;
     align-items: center;
     color: darkcyan;

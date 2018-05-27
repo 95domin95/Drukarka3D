@@ -183,11 +183,54 @@ namespace Drukarka3D.Controllers
             }
             catch(Exception)
             {
-                return Loader();
+                return RedirectToAction("Loader", new { message="Napotkano na nieznany błąd."});
             }
         }//Dominik
+
         [HttpPost]
-        public async Task<IActionResult> AddToFavourites([FromBody]Like like)
+        public async Task<IActionResult> RemoveFromFavouritesAsync([FromBody]Like like)
+        {
+            if (signInManager.IsSignedIn(User))
+            {
+                var userOrder = context.Order.Where(order => order.OrderId
+                .Equals(Convert.ToInt32(like.OrderId))).FirstOrDefault();
+
+                var favoriteProject = context.UserFavouriteProject
+                .Where(u => u.UserId.Equals(userManager.GetUserId(HttpContext.User))
+                && u.Order.Equals(userOrder)).FirstOrDefault();
+
+                if (favoriteProject == default(UserFavoriteProject))
+                {
+                    context.UserFavouriteProject.Add(new UserFavoriteProject()
+                    {
+                        User = await userManager.GetUserAsync(HttpContext.User),
+                        Order = userOrder,
+                        IsFavourite = false
+                    });
+
+                    userOrder.Likes -= 1;
+
+                    context.SaveChanges();
+                }
+                else
+                {
+                    if (favoriteProject.IsFavourite)
+                    {
+                        favoriteProject.IsFavourite = false;
+
+                        userOrder.Likes -= 1;
+
+                        context.SaveChanges();
+                    }
+
+                }
+            }
+
+            return Json(like);
+        }//Dawid
+
+        [HttpPost]
+        public async Task<IActionResult> AddToFavouritesAsync([FromBody]Like like)
         {
             if (signInManager.IsSignedIn(User))
             {
@@ -273,6 +316,7 @@ namespace Drukarka3D.Controllers
             return RedirectToAction("ProjectsGallery");
         }//Kamil
 
+
         public async Task<IActionResult> Index(string filter = "", int page=1, string sortExpression = "Status", int onPage=20)
         {
             var newestOrders = context.Order.AsNoTracking().Where(order => order.Private.Equals(false))
@@ -347,16 +391,16 @@ namespace Drukarka3D.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
-                return RedirectToAction("Index");
+                //await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
+                return RedirectToAction("Loader", new { message="Nie wybrano pliku!"});
             }
 
             var user = await userManager.GetUserAsync(HttpContext.User);
 
             if (CheckProjectNameAvailability(projectName, user))
             {
-                await Response.WriteAsync("<script>alert('Już stworzyłeś projekt o takiej samej nazwie!')</script>");
-                return RedirectToAction("Index");
+                //await Response.WriteAsync("<script>alert('Już stworzyłeś projekt o takiej samej nazwie!')</script>");
+                return RedirectToAction("Loader", new { message = "Już stworzyłeś projekt o takiej samej nazwie!" });
             }
 
             if (projectName == null||projectName == "") projectName = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
@@ -390,7 +434,7 @@ namespace Drukarka3D.Controllers
             
             //ForwardFiles(pathForStl, userOrder.Path);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Loader", new { message="Pomyślnie dodano projekt."});
         }//Dominik
 
         [HttpPost]
@@ -427,7 +471,10 @@ namespace Drukarka3D.Controllers
             try
             {
                 if (filename == null)
-                    return Content("filename not present");
+                {
+                    throw new FileNotFoundException();
+                }
+
 
                 var path = Path.Combine(
                                Directory.GetCurrentDirectory(),
@@ -443,8 +490,8 @@ namespace Drukarka3D.Controllers
             }
             catch(FileNotFoundException)
             {
-                await Response.WriteAsync("<script>alert('Blad: Nie znaleziono pliku!')</script>");
-                return RedirectToAction("Loader");
+                //await Response.WriteAsync("<script>alert('Blad: Nie znaleziono pliku!')</script>");
+                return RedirectToAction("Loader", new { message = "Nie znaleziono pliku!" });
             }
 
         }//Kamil
@@ -476,11 +523,12 @@ namespace Drukarka3D.Controllers
         }//Dominik
 
         [Authorize]
-        public IActionResult Loader()
+        public IActionResult Loader(string message)
         {
             if (User.Identity.IsAuthenticated)
             {
                 ViewData["Title"] = "Strona Główna";
+                ViewData["message"] = message;
                 return View();
             }
             else return RedirectToAction("Index","Home");
@@ -489,13 +537,14 @@ namespace Drukarka3D.Controllers
 
         public async Task<IActionResult> LogOut()
         {
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Home");
+            await signInManager.SignOutAsync();           
+            return RedirectToAction("Login", "Home", new { message="Wylogowano pomyślnie"});
         }//Kamil
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string message)
         {
+            ViewData["message"] = message;
             return View();
         }//Kamil
 

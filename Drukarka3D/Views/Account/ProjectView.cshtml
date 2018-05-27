@@ -72,6 +72,59 @@
                 window.addEventListener("load", function () {
                     "use strict";
 
+                    $("#like-btn").click(function () {
+
+                        if ("@Model.IsLiked" === "True") {
+                            var likesDec = @Model.Order.First().Likes - 1;
+
+                            $('#likes-count-div').html(likesDec);
+
+                            var orderId = "@Model.Order.First().OrderId";
+
+                            var data = { "OrderId": orderId };
+
+                            $.ajax({
+                                method: 'POST',
+                                url: 'RemoveFromFavouritesAsync',
+                                data: JSON.stringify(data),
+                                dataType: 'JSON',
+                                contentType: "application/json; charset=utf-8"
+                            }).done(function () {
+                                document.location.reload();
+                            }).fail(function () {
+                                document.location.reload();
+                            });
+
+
+
+                        }
+                        else {
+                            //$("#like-btn").prop('disabled', true);
+
+                            var likesInc = @Model.Order.First().Likes + 1;
+
+                            $('#likes-count-div').html(likesInc);
+
+                            var orderId = "@Model.Order.First().OrderId";
+
+                            var data = { "OrderId": orderId };
+
+                            $.ajax({
+                                method: 'POST',
+                                url: 'AddToFavouritesAsync',
+                                data: JSON.stringify(data),
+                                dataType: 'JSON',
+                                contentType: "application/json; charset=utf-8"
+                            }).done(function () {
+                                document.location.reload();
+                            }).fail(function () {
+                                document.location.reload();
+                            });;
+
+                        }
+
+                    });
+
                     $("#projectView").css("width", function () {
                         return $(window).width() * 0.7;
                     });
@@ -191,10 +244,21 @@
         <div class="col-sm-12">Status: @Model.Order.First().Status</div>
         <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>
         <div class="col-sm-12">
-            <button type="submit" class="btn btn-link" id="like-btn" disabled>
-                <span class="glyphicon glyphicon-thumbs-up" style="font-size: x-large"></span><div id="likes-count-div" style="font-size: large">@Model.LikesCount</div>
-            </button>
+            @if (!Model.IsSignedIn)
+            {
+                <button type="submit" class="btn btn-link" id="like-btn" disabled>
+                    <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div style="font-size: large">@Model.LikesCount</div>
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-link" id="like-btn">
+                    <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div id="likes-count-div" style="font-size: large">@Model.LikesCount</div>
+                </button>
+
+            }
+
         </div>
-        <div class="col-sm-12" style="margin-bottom: 10px;"><button class="btn btn-primary" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
+        <div class="col-sm-12" style="margin-bottom: 10px;"><label><a class="btn btn-primary" role="button" asp-action="Download" asp-controller="Home" asp-route-filename="@Model.Order.First().Path">Pobierz</a></label></div>
     </div>
 </div>

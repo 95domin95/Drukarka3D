@@ -1,6 +1,8 @@
 window.addEventListener("load", function () {
     "use strict";
 
+    var chooseFileClickCounter = 0;
+
     $("#view").css("width", function () {
         return $(window).width() * 0.7;
     });
@@ -78,6 +80,8 @@ window.addEventListener("load", function () {
 
      var input = document.getElementById("file");
      input.addEventListener("change", function (ev) {
+         //if (chooseFileClickCounter > 0) document.location.reload();
+         chooseFileClickCounter++;
          var file = ev.target.files[0];
          if (checkForValidFileExtension(file.name)) openFile(file);
          else alert("Plik musi mieć rozszerzenie stl.");

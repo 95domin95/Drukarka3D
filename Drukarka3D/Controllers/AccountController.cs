@@ -69,83 +69,142 @@ namespace Drukarka3D.Controllers
             return Json(new JsonResult(data));
         }//Dominik
 
-        public async Task<IActionResult> FavouriteProjects(string filter = "", int page = 1,
-            string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20)
+        public async Task<IActionResult> MyProjectsAsync(string filter = "", int page = 1,
+    string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20, int onPage = 10)
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
+            
+            var projects = context.Order.AsNoTracking().Where(order => order.UserId
+                .Equals(userManager.GetUserId(HttpContext.User)))
+                .OrderBy(order => order.UploadDate).AsQueryable();
 
-            IEnumerable<UserFavoriteProject> projects = context.UserFavouriteProject.Where(p => p.UserId.Equals(user.Id)
-            && p.Order.Name.Contains(filter));
+            ViewData["Title"] = "Moje projekty";
 
-            var orders = from p in context.UserFavouriteProject
-                         join o in context.Order on p.OrderId equals o.OrderId
-                         select o;
-
-
-            switch(sortExpression)
+            switch (sortExpression)
             {
-                case "Status":
-                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.Status);
-                    else if(sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.Status);
+                case "Liczba polubień":
+                    projects = projects.OrderBy(p => p.Likes);
                     break;
-                case "ViewsCount":
-                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.ViewsCount);
-                    else if (sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.ViewsCount);
+                case "Alfabetycznie":
+                    projects = projects.OrderBy(p => p.Name);
                     break;
-                case "UploadDate":
-                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.UploadDate);
-                    else if (sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.UploadDate);
+                case "Najnowsze":
+                    projects = projects.OrderBy(p => p.UploadDate);
                     break;
-                case "Rate":
-                    if (sortOrder.Equals("Ascending")) projects = projects.OrderBy(p => p.Order.Rate);
-                    else if (sortOrder.Equals("Descending")) projects = projects.OrderByDescending(p => p.Order.Rate);
+                case "Liczba wyświetleń":
+                    projects = projects.OrderBy(p => p.RatingsCount);
                     break;
                 default:
                     break;
             }
 
-            List<string> sortExpressionValues = new List<string>();
-            sortExpressionValues.Add("UploadDate");
-            sortExpressionValues.Add("Status");
-            sortExpressionValues.Add("Name");
-            sortExpressionValues.Add("ViewsCount");
+            var numberOfElements = projects.Count();
 
-            List<string> sortingOrderValues = new List<string>();
-            sortingOrderValues.Add("Ascending");
-            sortingOrderValues.Add("Descending");
+            var numberOfPages = (int)(projects.Count() / onPage);
 
-            List<int> elementsOnPageValues = new List<int>();
-            elementsOnPageValues.Add(10);
-            elementsOnPageValues.Add(20);
-            elementsOnPageValues.Add(30);
-            elementsOnPageValues.Add(40);
-            elementsOnPageValues.Add(50);
+            var elToTake = onPage;
 
-            var elementsOnLastPage = projects.Count() % elementsOnPage;
+            if ((projects.Count() % onPage) != 0) numberOfPages++;
 
-            var numberOfPages = (int)(projects.Count() / elementsOnPage);
+            if (page < 1) page = 1;
+            if (page > numberOfPages) page = numberOfPages;
 
-            var elementsToShow = elementsOnPage;
+            if (page.Equals(numberOfPages)) elToTake = projects.Count() - ((numberOfPages - 1) * onPage);
 
-            if (page.Equals(numberOfPages)) elementsToShow = elementsOnLastPage;
-
-            projects = projects.Skip(page * elementsOnPage).Take(elementsToShow);
+            if (numberOfElements > 0)
+            {
+                projects = projects.Skip((page - 1) * onPage).Take(elToTake);
+            }
 
             return View(new FavouriteProjectsViewModel()
             {
-                Orders = orders,
-                ElementsOnPage = elementsOnPage,
+                NumberOfPages = numberOfPages,
+                NumberOfElements = numberOfElements,
+                Orders = projects,
+                OnPage = onPage,
                 Filter = filter,
                 Page = page,
                 SortExpression = sortExpression,
-                SortingOrder = sortOrder,
-                SortExpressionValues = sortExpressionValues,
-                SortingOrderValues = sortingOrderValues,
-                ElementsOnPageValues = elementsOnPageValues
-
+                SortingOrder = sortOrder
             });
         }//Dawid
-  
+
+        public async Task<IActionResult> FavouriteProjectsAsync(string filter = "", int page = 1,
+            string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20, int onPage=10)
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            var projects = from p in context.UserFavouriteProject
+                         join o in context.Order on p.OrderId equals o.OrderId
+                         where p.UserId.Equals(user.Id)
+                         select o ;
+
+            ViewData["Title"] = "Ulubione";
+
+            switch (sortExpression)
+            {
+                case "Liczba polubień":
+                    projects = projects.OrderBy(p => p.Likes);
+                    break;
+                case "Alfabetycznie":
+                    projects = projects.OrderBy(p => p.Name);                  
+                    break;
+                case "Najnowsze":
+                    projects = projects.OrderBy(p => p.UploadDate);
+                    break;
+                case "Liczba wyświetleń":
+                    projects = projects.OrderBy(p => p.RatingsCount);                    
+                    break;
+                default:
+                    break;
+            }
+
+            var favourites = context.UserFavouriteProject.Where(f => f.User.Equals(user)&&f.IsFavourite);
+
+            List<Order> tmp = new List<Order>();
+
+            var numberOfElements = projects.Count();
+
+            var numberOfPages = (int)(projects.Count() / onPage);
+
+            var elToTake = onPage;
+
+            if ((projects.Count() % onPage) != 0) numberOfPages++;
+
+            if (page < 1) page = 1;
+            if (page > numberOfPages) page = numberOfPages;
+
+            if (page.Equals(numberOfPages)) elToTake = projects.Count() - ((numberOfPages - 1) * onPage);
+
+            if (numberOfElements > 0)
+            {
+                projects = projects.Skip((page - 1) * onPage).Take(elToTake);
+
+                if (user != null && favourites.Count() > 0)
+                {
+                    foreach (var i in projects)
+                    {
+                        foreach (var j in favourites)
+                        {
+                            if (i.Equals(j.Order) && j.IsFavourite) tmp.Add(i);
+                        }
+                    }
+                }
+            }
+
+            return View(new FavouriteProjectsViewModel()
+            {
+                NumberOfPages = numberOfPages,
+                NumberOfElements = numberOfElements,
+                Orders = projects,
+                OnPage = onPage,
+                Filter = filter,
+                Page = page,
+                SortExpression = sortExpression,
+                SortingOrder = sortOrder
+            });
+        }//Dawid
+
 
         public async Task<IActionResult> Index(string filter = "", int page = 1, 
             string sortExpression = "Status", int onPage = 20, string viewType= "Moje Projekty")

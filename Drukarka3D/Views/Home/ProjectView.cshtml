@@ -24,10 +24,10 @@
                 window.addEventListener("load", function () {
                     "use strict";
 
-                    if ("@Model.IsLiked" === "True") {
+                    @*if ("@Model.IsLiked" === "True") {
                         $("#like-btn").prop('disabled', true);
 
-                    }
+                    }*@
 
                     $("#confirm").click(function () {
 
@@ -124,23 +124,56 @@
                     };
 
                     $("#like-btn").click(function () {
-                        $("#like-btn").prop('disabled', true);
 
-                        var likesInc = @Model.Order.First().Likes + 1;
+                        if ("@Model.IsLiked" === "True") {
+                            var likesDec = @Model.Order.First().Likes - 1;
 
-                        $('#likes-count-div').html(likesInc);
+                            $('#likes-count-div').html(likesDec);
 
-                        var orderId = "@Model.Order.First().OrderId";
+                            var orderId = "@Model.Order.First().OrderId";
 
-                        var data = { "OrderId": orderId };
+                            var data = { "OrderId": orderId };
 
-                        $.ajax({
-                            method: 'POST',
-                            url: 'AddToFavourites',
-                            data: JSON.stringify(data),
-                            dataType: 'JSON',
-                            contentType: "application/json; charset=utf-8"
-                        });
+                            $.ajax({
+                                method: 'POST',
+                                url: 'RemoveFromFavouritesAsync',
+                                data: JSON.stringify(data),
+                                dataType: 'JSON',
+                                contentType: "application/json; charset=utf-8"
+                            }).done(function () { 
+                                document.location.reload();
+                            }).fail(function () { 
+                                document.location.reload();
+                            });
+
+
+
+                        }
+                        else {
+                            //$("#like-btn").prop('disabled', true);
+
+                            var likesInc = @Model.Order.First().Likes + 1;
+
+                            $('#likes-count-div').html(likesInc);
+
+                            var orderId = "@Model.Order.First().OrderId";
+
+                            var data = { "OrderId": orderId };
+
+                            $.ajax({
+                                method: 'POST',
+                                url: 'AddToFavouritesAsync',
+                                data: JSON.stringify(data),
+                                dataType: 'JSON',
+                                contentType: "application/json; charset=utf-8"
+                            }).done(function () {
+                                document.location.reload();
+                            }).fail(function () {
+                                document.location.reload();
+                            });;
+
+                        }
+
                     });
 
                     (function () {
@@ -186,19 +219,19 @@
             @if (!Model.IsSignedIn)
             {
                 <button type="submit" class="btn btn-link" id="like-btn" disabled>
-                    <span class="glyphicon glyphicon-thumbs-up" style="font-size: x-large"></span><div style="font-size: large">@Model.LikesCount</div>
+                    <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div style="font-size: large">@Model.LikesCount</div>
                 </button>
             }
             else
             {
                 <button type="submit" class="btn btn-link" id="like-btn">
-                    <span class="glyphicon glyphicon-thumbs-up" style="font-size: x-large"></span><div id="likes-count-div" style="font-size: large">@Model.LikesCount</div>
+                    <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div id="likes-count-div" style="font-size: large">@Model.LikesCount</div>
                 </button>
 
             }
 
         </div>
-        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><button class="btn btn-primary" asp-action="Download" asp-route-filename="@Model.Order.First().Path">Pobierz</button></div>
+        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><label><a class="btn btn-primary" asp-action="Download" role="button" asp-route-filename="@Model.Order.First().Path">Pobierz</a></label></div>
         @*<button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px; margin-top: 5px;"><strong>Drukuj</strong></button>*@
         @*@await Html.PartialAsync("_ProjectViewPartial")*@
     </div>

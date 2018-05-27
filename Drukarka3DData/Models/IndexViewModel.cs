@@ -24,22 +24,20 @@ namespace Drukarka3DData.Models
         [Display(Name = "Numer telefonu")]
         public string PhoneNumber { get; set; }
 
-        [RegularExpression("([a-zA-Z]+)", ErrorMessage = "Niepoprawne imię")]
         [Required(ErrorMessage = "Pole imię jest wymagane")]
         [Display(Name = "Imię")]
         public string Name { get; set; }
 
-        [RegularExpression("([a-zA-Z]+)", ErrorMessage = "Niepoprawne nazwisko")]
         [Required(ErrorMessage = "Pole nazwisko jest wymagane")]
         [Display(Name = "Nazwisko")]
         public string Surname { get; set; }
 
-        [RegularExpression("([a-zA-Z]+)", ErrorMessage = "Niepoprawna nazwa miejscowości")]
         [Required(ErrorMessage = "Pole miejscowość jest wymagane")]
         [Display(Name = "Miejscowość")]
         public string City { get; set; }
 
         [Required(ErrorMessage = "Pole kod pocztowy jest wymagane")]
+        [RegularExpression("[0-9]{2}-[0-9]{3})", ErrorMessage = "Niepoprawny kod pocztowy")]
         [Display(Name = "Kod pocztowy")]
         public string PostCode { get; set; }
 

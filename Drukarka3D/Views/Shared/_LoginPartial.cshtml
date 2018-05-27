@@ -10,7 +10,8 @@
     <li class="dropdown" id="navbar-dropdown-btn">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User) <span class="caret"></span></a>
         <ul class="dropdown-menu" style="background-color: lightcyan;">
-            <li ><a class="navbar-dropdown-option"href="@Url.Action("Index","Account")">Moje Projekty</a></li>
+            <li><a class="navbar-dropdown-option" href="@Url.Action("FavouriteProjectsAsync","Account")">Ulubione</a></li>
+            <li><a class="navbar-dropdown-option" href="@Url.Action("MyProjectsAsync","Account")">Moje Projekty</a></li>
             <li class="navbar-dropdown-option"><a href="@Url.Action("ManageAccount", "Home")">Moje konto</a></li>
             <li role="separator" class="divider"></li>
             <li class="navbar-dropdown-option"><a href="@Url.Action("LogOut","Home")">Wyloguj</a></li>
