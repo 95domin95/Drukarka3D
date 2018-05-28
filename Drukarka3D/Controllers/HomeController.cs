@@ -187,6 +187,7 @@ namespace Drukarka3D.Controllers
             }
         }//Dominik
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> RemoveFromFavouritesAsync([FromBody]Like like)
         {
@@ -229,6 +230,7 @@ namespace Drukarka3D.Controllers
             return Json(like);
         }//Dawid
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddToFavouritesAsync([FromBody]Like like)
         {
@@ -271,6 +273,7 @@ namespace Drukarka3D.Controllers
             return Json(like);
         }//Dawid
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UpdateRating([FromBody]Rating rating)
         {
@@ -341,7 +344,7 @@ namespace Drukarka3D.Controllers
             return View(model);
         }//Dominik
 
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UploadImage([FromBody]CanvasScreenshot screen)
         {
@@ -386,6 +389,7 @@ namespace Drukarka3D.Controllers
         }//Dawid
 
         [HttpPost]
+        [Authorize]
         [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadFile(string projectName, string isPrivate, IFormFile file)
         {
@@ -438,6 +442,7 @@ namespace Drukarka3D.Controllers
         }//Dominik
 
         [HttpPost]
+        [Authorize]
         public IActionResult Print([FromBody]FileToPrint data)
         {
             var path1 = Path.Combine(
@@ -535,274 +540,280 @@ namespace Drukarka3D.Controllers
 
         }//Dominik
 
-        public async Task<IActionResult> LogOut()
-        {
-            await signInManager.SignOutAsync();           
-            return RedirectToAction("Login", "Home", new { message="Wylogowano pomyślnie"});
-        }//Kamil
+        //public async Task<IActionResult> LogOut()
+        //{
+        //    await signInManager.SignOutAsync();           
+        //    return RedirectToAction("Login", "Home", new { message="Wylogowano pomyślnie"});
+        //}//Kamil
 
-        [HttpGet]
-        public IActionResult Login(string message)
-        {
-            ViewData["message"] = message;
-            return View();
-        }//Kamil
+        //[HttpGet]
+        //public IActionResult Login(string message)
+        //{
+        //    ViewData["message"] = message;
+        //    return View();
+        //}//Kamil
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel vm)
-        {
-            if(ModelState.IsValid)
-            {
-                var result = await signInManager.PasswordSignInAsync(vm.Login, vm.Password, vm.RememberMe, false);
-                if(result.Succeeded)
-                {
-                    return RedirectToAction("Index","Home");
-                }
-                ModelState.AddModelError("", "Invalid Login Attempt.");
-                return View(vm);
-            }
-            return View(vm);
-        }//Dawid
+        //[HttpPost]
+        //public async Task<IActionResult> Login(LoginViewModel vm)
+        //{
+        //    if(ModelState.IsValid)
+        //    {
+        //        var result = await signInManager.PasswordSignInAsync(vm.Login, vm.Password, vm.RememberMe, false);
+        //        if(result.Succeeded)
+        //        {
+        //            return RedirectToAction("Index","Home");
+        //        }
+        //        ModelState.AddModelError("", "Invalid Login Attempt.");
+        //        return View(vm);
+        //    }
+        //    return View(vm);
+        //}//Dawid
 
-        [HttpGet]
-        public IActionResult Register()
-        {
-            ViewData["Title"] = "Rejestracja";
-            return View();
-        }//Dawid
+        //[HttpGet]
+        //public IActionResult Register()
+        //{
+        //    ViewData["Title"] = "Rejestracja";
+        //    return View();
+        //}//Dawid
 
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel vm)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = new ApplicationUser { UserName = vm.Login, Email = vm.Email };
-                var result = await userManager.CreateAsync(user, vm.Password);
+        //[HttpPost]
+        //public async Task<IActionResult> Register(RegisterViewModel vm)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var user = new ApplicationUser { UserName = vm.Login, Email = vm.Email };
+        //        var result = await userManager.CreateAsync(user, vm.Password);
 
-                if(result.Succeeded)
-                {
-                    await signInManager.SignInAsync(user, false);
-                    return RedirectToAction("Index","Home");
-                }
-                else
-                {
-                    foreach(var error in result.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                }
-            }
-            return View(vm);
-        }//Kamil
+        //        if(result.Succeeded)
+        //        {
+        //            await signInManager.SignInAsync(user, false);
+        //            return RedirectToAction("Index","Home");
+        //        }
+        //        else
+        //        {
+        //            foreach(var error in result.Errors)
+        //            {
+        //                ModelState.AddModelError("", error.Description);
+        //            }
+        //        }
+        //    }
+        //    return View(vm);
+        //}//Kamil
 
-        [HttpGet]
-        public async Task<IActionResult> ChangePassword()
-        {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
-            }
+        //[HttpGet]
+        //[Authorize]
+        //public async Task<IActionResult> ChangePassword()
+        //{
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        //    }
 
-            var hasPassword = await userManager.HasPasswordAsync(user);
-            if (!hasPassword)
-            {
-                return RedirectToAction(nameof(SetPassword));
-            }
+        //    var hasPassword = await userManager.HasPasswordAsync(user);
+        //    if (!hasPassword)
+        //    {
+        //        return RedirectToAction(nameof(SetPassword));
+        //    }
 
-            var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };
-            return View(model);
-        }//Dominik
+        //    var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };
+        //    return View(model);
+        //}//Dominik
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+        //[HttpPost]
+        //[Authorize]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(model);
+        //    }
 
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
-            }
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        //    }
 
-            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-            if (!changePasswordResult.Succeeded)
-            {
-                AddErrors(changePasswordResult);
-                return View(model);
-            }
+        //    var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+        //    if (!changePasswordResult.Succeeded)
+        //    {
+        //        AddErrors(changePasswordResult);
+        //        return View(model);
+        //    }
 
-            await signInManager.SignInAsync(user, isPersistent: false);
-            StatusMessage = "Your password has been changed.";
+        //    await signInManager.SignInAsync(user, isPersistent: false);
+        //    StatusMessage = "Your password has been changed.";
 
-            return RedirectToAction(nameof(ChangePassword));
-        }//Dominik
+        //    return RedirectToAction(nameof(ChangePassword));
+        //}//Dominik
 
-        [HttpGet]
-        public async Task<IActionResult> SetPassword()
-        {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
-            }
+        //[HttpGet]
+        //[Authorize]
+        //public async Task<IActionResult> SetPassword()
+        //{
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        //    }
 
-            var hasPassword = await userManager.HasPasswordAsync(user);
+        //    var hasPassword = await userManager.HasPasswordAsync(user);
 
-            if (hasPassword)
-            {
-                return RedirectToAction(nameof(ChangePassword));
-            }
+        //    if (hasPassword)
+        //    {
+        //        return RedirectToAction(nameof(ChangePassword));
+        //    }
 
-            var model = new SetPasswordViewModel { StatusMessage = StatusMessage };
-            return View(model);
-        }//Kamil
+        //    var model = new SetPasswordViewModel { StatusMessage = StatusMessage };
+        //    return View(model);
+        //}//Kamil
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //[Authorize]
+        //public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(model);
+        //    }
 
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
-            }
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        //    }
 
-            var addPasswordResult = await userManager.AddPasswordAsync(user, model.NewPassword);
-            if (!addPasswordResult.Succeeded)
-            {
-                AddErrors(addPasswordResult);
-                return View(model);
-            }
+        //    var addPasswordResult = await userManager.AddPasswordAsync(user, model.NewPassword);
+        //    if (!addPasswordResult.Succeeded)
+        //    {
+        //        AddErrors(addPasswordResult);
+        //        return View(model);
+        //    }
 
-            await signInManager.SignInAsync(user, isPersistent: false);
-            StatusMessage = "Your password has been set.";
+        //    await signInManager.SignInAsync(user, isPersistent: false);
+        //    StatusMessage = "Your password has been set.";
 
-            return RedirectToAction(nameof(SetPassword));
-        }//Dawid
+        //    return RedirectToAction(nameof(SetPassword));
+        //}//Dawid
 
-        [HttpGet]
-        public async Task<IActionResult> ManageAccount()
-        {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
-            }
+        //[HttpGet]
+        //[Authorize]
+        //public async Task<IActionResult> ManageAccount()
+        //{
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        //    }
 
-            var model = new IndexViewModel
-            {
-                Username = user.UserName,
-                Email = user.Email,
-                Name = user.Name,
-                Surname = user.Surname,
-                City = user.City,
-                PostCode = user.PostCode,
-                Street = user.Street,
-                ApartmentNumber = user.ApartmentNumber,
-                PhoneNumber = user.PhoneNumber,
-                IsEmailConfirmed = user.EmailConfirmed,
-                StatusMessage = StatusMessage
-            };
+        //    var model = new IndexViewModel
+        //    {
+        //        Username = user.UserName,
+        //        Email = user.Email,
+        //        Name = user.Name,
+        //        Surname = user.Surname,
+        //        City = user.City,
+        //        PostCode = user.PostCode,
+        //        Street = user.Street,
+        //        ApartmentNumber = user.ApartmentNumber,
+        //        PhoneNumber = user.PhoneNumber,
+        //        IsEmailConfirmed = user.EmailConfirmed,
+        //        StatusMessage = StatusMessage
+        //    };
 
-            return View(model);
-        }//Kamil
+        //    return View(model);
+        //}//Kamil
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ManageAccount(IndexViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //[Authorize]
+        //public async Task<IActionResult> ManageAccount(IndexViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(model);
+        //    }
 
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
-            }
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        //    }
 
-            var email = user.Email;
-            if (model.Email != email)
-            {
-                var setEmailResult = await userManager.SetEmailAsync(user, model.Email);
-                if (!setEmailResult.Succeeded)
-                {
-                    throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
-                }
-            }
+        //    var email = user.Email;
+        //    if (model.Email != email)
+        //    {
+        //        var setEmailResult = await userManager.SetEmailAsync(user, model.Email);
+        //        if (!setEmailResult.Succeeded)
+        //        {
+        //            throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
+        //        }
+        //    }
 
-            var name = user.Name;
-            if (model.Name != name)
-            {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.Name = model.Name;
-                context.SaveChanges();
-            }
+        //    var name = user.Name;
+        //    if (model.Name != name)
+        //    {
+        //        var usr = await userManager.GetUserAsync(HttpContext.User);
+        //        usr.Name = model.Name;
+        //        context.SaveChanges();
+        //    }
 
-            var surname = user.Surname;
-            if (model.Surname != surname)
-            {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.Surname = model.Surname;
-                context.SaveChanges();
-            }
+        //    var surname = user.Surname;
+        //    if (model.Surname != surname)
+        //    {
+        //        var usr = await userManager.GetUserAsync(HttpContext.User);
+        //        usr.Surname = model.Surname;
+        //        context.SaveChanges();
+        //    }
 
-            var city = user.City;
-            if (model.City != city)
-            {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.City = model.City;
-                context.SaveChanges();
-            }
+        //    var city = user.City;
+        //    if (model.City != city)
+        //    {
+        //        var usr = await userManager.GetUserAsync(HttpContext.User);
+        //        usr.City = model.City;
+        //        context.SaveChanges();
+        //    }
 
-            var postCode = user.PostCode;
-            if (model.PostCode != postCode)
-            {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.PostCode = model.PostCode;
-                context.SaveChanges();
-            }
+        //    var postCode = user.PostCode;
+        //    if (model.PostCode != postCode)
+        //    {
+        //        var usr = await userManager.GetUserAsync(HttpContext.User);
+        //        usr.PostCode = model.PostCode;
+        //        context.SaveChanges();
+        //    }
 
-            var street = user.Street;
-            if (model.Street != street)
-            {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.Street = model.Street;
-                context.SaveChanges();
-            }
+        //    var street = user.Street;
+        //    if (model.Street != street)
+        //    {
+        //        var usr = await userManager.GetUserAsync(HttpContext.User);
+        //        usr.Street = model.Street;
+        //        context.SaveChanges();
+        //    }
 
-            var apartmentNumber = user.ApartmentNumber;
-            if (model.ApartmentNumber != apartmentNumber)
-            {
-                var usr = await userManager.GetUserAsync(HttpContext.User);
-                usr.ApartmentNumber = model.ApartmentNumber;
-                context.SaveChanges();
-            }
+        //    var apartmentNumber = user.ApartmentNumber;
+        //    if (model.ApartmentNumber != apartmentNumber)
+        //    {
+        //        var usr = await userManager.GetUserAsync(HttpContext.User);
+        //        usr.ApartmentNumber = model.ApartmentNumber;
+        //        context.SaveChanges();
+        //    }
 
-            var phoneNumber = user.PhoneNumber;
-            if (model.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
-                }
-            }
+        //    var phoneNumber = user.PhoneNumber;
+        //    if (model.PhoneNumber != phoneNumber)
+        //    {
+        //        var setPhoneResult = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+        //        if (!setPhoneResult.Succeeded)
+        //        {
+        //            throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
+        //        }
+        //    }
 
-            StatusMessage = "Your profile has been updated";
-            return RedirectToAction(nameof(ManageAccount));
-        }//Dominik
+        //    StatusMessage = "Your profile has been updated";
+        //    return RedirectToAction(nameof(ManageAccount));
+        //}//Dominik
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]

@@ -3,6 +3,22 @@
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script src="/js/jquery.rateyo.min.js"></script>
 
+
+<div class="row">
+    <div class="col-xs-12">
+        @if (ViewData["message"] != null)
+        {
+            @if (!ViewData["message"].Equals(""))
+            {
+
+                <div class="alert alert-success" role="alert">
+                    @ViewData["message"]
+                </div>
+            }
+
+        }
+    </div>
+</div>
 <div class="row">
     <div class="col-sm-12">
         <h3>@ViewData["Title"]</h3>
@@ -19,9 +35,9 @@
                 Sortuj:
             </div>
             <select name="sortExpression" class="form-control">
-                 @{ List<string> sortExpression = new List<string>();
-                     sortExpression.Add("Najnowsze"); sortExpression.Add("Alfabetycznie");
-                     sortExpression.Add("Liczba wyświetleń"); sortExpression.Add("Liczba polubień");}
+                @{ List<string> sortExpression = new List<string>();
+                    sortExpression.Add("Najnowsze"); sortExpression.Add("Alfabetycznie");
+                    sortExpression.Add("Liczba wyświetleń"); sortExpression.Add("Liczba polubień");}
                 @foreach (var i in sortExpression)
                 {
                     @if (i.Equals(Model.SortExpression))

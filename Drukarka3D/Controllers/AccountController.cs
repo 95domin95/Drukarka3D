@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using Drukarka3D.Services;
 using Drukarka3DData;
 using Drukarka3DData.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +29,8 @@ namespace Drukarka3D.Controllers
     public class AccountController : Controller
     {
         public string UserScreenPath { get; set; }
+        public string StatusMessage { get; private set; }
+
         private Drukarka3DContext context;
         private readonly IEmailSender emailSender;
         private readonly IFileProvider fileProvider;
@@ -44,6 +48,7 @@ namespace Drukarka3D.Controllers
             this.fileProvider = fileProvider;
         }//Kamil
 
+        [Authorize]
         [HttpPost]
         public IActionResult Print([FromBody]FileToPrint data)
         {
@@ -69,14 +74,18 @@ namespace Drukarka3D.Controllers
             return Json(new JsonResult(data));
         }//Dominik
 
+        [Authorize]
         public async Task<IActionResult> MyProjectsAsync(string filter = "", int page = 1,
-    string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20, int onPage = 10)
+    string sortExpression = "Status", string sortOrder = "Ascending",
+    int elementsOnPage = 20, int onPage = 10, string message="")
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
             
             var projects = context.Order.AsNoTracking().Where(order => order.UserId
                 .Equals(userManager.GetUserId(HttpContext.User)))
                 .OrderBy(order => order.UploadDate).AsQueryable();
+
+            projects = projects.Where(p => p.Name.Contains(filter));
 
             ViewData["Title"] = "Moje projekty";
 
@@ -116,6 +125,8 @@ namespace Drukarka3D.Controllers
                 projects = projects.Skip((page - 1) * onPage).Take(elToTake);
             }
 
+            ViewData["message"] = message;
+
             return View(new FavouriteProjectsViewModel()
             {
                 NumberOfPages = numberOfPages,
@@ -129,6 +140,7 @@ namespace Drukarka3D.Controllers
             });
         }//Dawid
 
+        [Authorize]
         [HttpPost]
         public IActionResult AdminPanel(string FileName="", string Message="")
         {
@@ -145,11 +157,13 @@ namespace Drukarka3D.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult AdminPanel()
         {
             return View();
         }
 
+        [Authorize]
         public async Task<IActionResult> FavouriteProjectsAsync(string filter = "", int page = 1,
             string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20, int onPage=10)
         {
@@ -159,6 +173,8 @@ namespace Drukarka3D.Controllers
                          join o in context.Order on p.OrderId equals o.OrderId
                          where p.UserId.Equals(user.Id)
                          select o ;
+
+            projects = projects.Where(p => p.Name.Contains(filter));
 
             ViewData["Title"] = "Ulubione";
 
@@ -226,7 +242,7 @@ namespace Drukarka3D.Controllers
             });
         }//Dawid
 
-
+        [Authorize]
         public async Task<IActionResult> Index(string filter = "", int page = 1, 
             string sortExpression = "Status", int onPage = 20, string viewType= "Moje Projekty")
         {
@@ -274,6 +290,7 @@ namespace Drukarka3D.Controllers
         }//Kamil
 
         [HttpPost]
+        [Authorize]
         public IActionResult ProjectShare([FromBody]ProjectPrivacy privacy)
         {
             var result = context.Order.Where(o => o.OrderId
@@ -322,7 +339,7 @@ namespace Drukarka3D.Controllers
             response.Close();
         }//Dominik
 
-
+        [Authorize]
         [HttpPost]
         public IActionResult ProjectView(IFormCollection param)
         {
@@ -360,6 +377,323 @@ namespace Drukarka3D.Controllers
             {
                 return View();
             }
+        }//Dawid
+
+
+        public async Task<IActionResult> LogOut()
+        {
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Account", new { message = "Wylogowano pomyślnie" });
+        }//Kamil
+
+        [HttpGet]
+        public IActionResult Login(string message)
+        {
+            ViewData["message"] = message;
+            return View();
+        }//Kamil
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel vm)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await signInManager.PasswordSignInAsync(vm.Login, vm.Password, vm.RememberMe, false);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                ModelState.AddModelError("", "Invalid Login Attempt.");
+                return View(vm);
+            }
+            return View(vm);
+        }//Dawid
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            ViewData["Title"] = "Rejestracja";
+            return View();
+        }//Dawid
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel vm)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = vm.Login, Email = vm.Email };
+                var result = await userManager.CreateAsync(user, vm.Password);
+
+                if (result.Succeeded)
+                {
+                    await signInManager.SignInAsync(user, false);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
+            return View(vm);
+        }//Kamil
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
+
+            var hasPassword = await userManager.HasPasswordAsync(user);
+            if (!hasPassword)
+            {
+                return RedirectToAction(nameof(SetPassword));
+            }
+
+            var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };
+            return View(model);
+        }//Dominik
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
+
+            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                AddErrors(changePasswordResult);
+                return View(model);
+            }
+
+            await signInManager.SignInAsync(user, isPersistent: false);
+            StatusMessage = "Your password has been changed.";
+
+            return RedirectToAction(nameof(ChangePassword));
+        }//Dominik
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> SetPassword()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
+
+            var hasPassword = await userManager.HasPasswordAsync(user);
+
+            if (hasPassword)
+            {
+                return RedirectToAction(nameof(ChangePassword));
+            }
+
+            var model = new SetPasswordViewModel { StatusMessage = StatusMessage };
+            return View(model);
+        }//Kamil
+
+        [Authorize]
+        public IActionResult RemoveProject(string OrderId)
+        {
+            var order = context.Order.Where(o => o.OrderId.Equals(Convert.ToInt32(OrderId))).FirstOrDefault();
+
+            if(order!=default(Order))
+            {
+                var favourites = context.UserFavouriteProject.Where(f => f.OrderId.Equals(OrderId));
+
+                if (favourites.Count() > 0)
+                {
+                    foreach(var i in favourites)
+                    {
+                        context.UserFavouriteProject.Remove(i);
+                        context.SaveChanges();
+                    }
+                }
+
+                context.Order.Remove(order);
+                context.SaveChanges();
+            }
+
+            return RedirectToAction("MyProjectsAsync","Account", new { message="Usunięto projekt."});
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
+
+            var addPasswordResult = await userManager.AddPasswordAsync(user, model.NewPassword);
+            if (!addPasswordResult.Succeeded)
+            {
+                AddErrors(addPasswordResult);
+                return View(model);
+            }
+
+            await signInManager.SignInAsync(user, isPersistent: false);
+            StatusMessage = "Your password has been set.";
+
+            return RedirectToAction(nameof(SetPassword));
+        }//Dawid
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ManageAccount(string message="")
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
+
+            var model = new IndexViewModel
+            {
+                Username = user.UserName,
+                Email = user.Email,
+                Name = user.Name,
+                Surname = user.Surname,
+                City = user.City,
+                PostCode = user.PostCode,
+                Street = user.Street,
+                ApartmentNumber = user.ApartmentNumber,
+                PhoneNumber = user.PhoneNumber,
+                IsEmailConfirmed = user.EmailConfirmed,
+                StatusMessage = StatusMessage
+            };
+
+            ViewData["message"] = message;
+
+            return View(model);
+        }//Kamil
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManageAccount(IndexViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
+
+            var email = user.Email;
+            if (model.Email != email)
+            {
+                var setEmailResult = await userManager.SetEmailAsync(user, model.Email);
+                if (!setEmailResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
+                }
+            }
+
+            var name = user.Name;
+            if (model.Name != name)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.Name = model.Name;
+                context.SaveChanges();
+            }
+
+            var surname = user.Surname;
+            if (model.Surname != surname)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.Surname = model.Surname;
+                context.SaveChanges();
+            }
+
+            var city = user.City;
+            if (model.City != city)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.City = model.City;
+                context.SaveChanges();
+            }
+
+            var postCode = user.PostCode;
+            if (model.PostCode != postCode)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.PostCode = model.PostCode;
+                context.SaveChanges();
+            }
+
+            var street = user.Street;
+            if (model.Street != street)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.Street = model.Street;
+                context.SaveChanges();
+            }
+
+            var apartmentNumber = user.ApartmentNumber;
+            if (model.ApartmentNumber != apartmentNumber)
+            {
+                var usr = await userManager.GetUserAsync(HttpContext.User);
+                usr.ApartmentNumber = model.ApartmentNumber;
+                context.SaveChanges();
+            }
+
+            var phoneNumber = user.PhoneNumber;
+            if (model.PhoneNumber != phoneNumber)
+            {
+                var setPhoneResult = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+                if (!setPhoneResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
+                }
+            }
+
+            StatusMessage = "Your profile has been updated";
+            return RedirectToAction("ManageAccount", "Account", new { message="Twój profil został zaktualizowany"});
+        }//Dominik
+
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }//Dominik
+
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }//Dawid
     }
 }

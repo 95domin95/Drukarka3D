@@ -41,9 +41,11 @@
                 else
                 {
                     <label>Projekt publiczny: <input id="isPrivate" type="checkbox" checked /></label>
-                }
-
+                }            
                 <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px">Zmień</button>
+                <form method="get">
+                    <button asp-controller="Account" asp-action="RemoveProject" name="OrderId" value="@Model.Order.First().OrderId" type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Usuń <span class="glyphicon glyphicon-remove" style="color: red"></span></button>
+                </form>    
             </div>
             <script>
                 window.addEventListener("load", function () {

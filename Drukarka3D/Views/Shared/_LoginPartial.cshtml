@@ -15,16 +15,16 @@
     <li class="dropdown" id="navbar-dropdown-btn">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User) <span class="caret"></span></a>
         <ul class="dropdown-menu" style="background-color: lightcyan;">
-            <li><a class="navbar-dropdown-option" href="@Url.Action("FavouriteProjectsAsync","Account")">Ulubione</a></li>
-            <li><a class="navbar-dropdown-option" href="@Url.Action("MyProjectsAsync","Account")">Moje Projekty</a></li>
-            <li class="navbar-dropdown-option"><a href="@Url.Action("ManageAccount", "Home")">Moje konto</a></li>
+            <li><a class="navbar-dropdown-option" href="@Url.Action("FavouriteProjectsAsync","Account")"><span class="glyphicon glyphicon-heart"></span> Ulubione</a></li>
+            <li><a class="navbar-dropdown-option" href="@Url.Action("MyProjectsAsync","Account")"><span class="glyphicon glyphicon-th"></span> Moje Projekty</a></li>
+            <li class="navbar-dropdown-option"><a href="@Url.Action("ManageAccount", "Account")"><span class="glyphicon glyphicon-cog"></span> Moje konto</a></li>
             <li role="separator" class="divider"></li>
-            <li class="navbar-dropdown-option"><a href="@Url.Action("LogOut","Home")">Wyloguj</a></li>
+            <li class="navbar-dropdown-option"><a href="@Url.Action("LogOut","Account")"><span class="glyphicon glyphicon-off"></span> Wyloguj</a></li>
         </ul>
     </li>
 }
 else
 {
-    <li><a href="@Url.Action("Login", "Home")">Zaloguj</a></li>
-    <li><a href="@Url.Action("Register","Home")">Rejestracja</a></li>
+    <li><a href="@Url.Action("Login", "Account")">Zaloguj</a></li>
+    <li><a href="@Url.Action("Register","Account")">Rejestracja</a></li>
 }

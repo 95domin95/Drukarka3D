@@ -37,7 +37,7 @@ namespace Drukarka3DData.Models
         public string City { get; set; }
 
         [Required(ErrorMessage = "Pole kod pocztowy jest wymagane")]
-        [RegularExpression("[0-9]{2}-[0-9]{3})", ErrorMessage = "Niepoprawny kod pocztowy")]
+        [RegularExpression("[0-9]{2}-[0-9]{3}", ErrorMessage = "Niepoprawny kod pocztowy")]
         [Display(Name = "Kod pocztowy")]
         public string PostCode { get; set; }
 
