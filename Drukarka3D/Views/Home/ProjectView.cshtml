@@ -11,6 +11,26 @@
 
 <div class="box">
     <div class="row">
+            <div class="col-xs-12">
+        @if (!Model.Order.First().Status.Equals("Przyjęto"))
+        {
+            @if(Model.Order.First().Status.Equals("Zatwierdzono"))
+            {
+                <div class="alert alert-success" role="alert">
+                    @Model.Order.First().Status
+                </div>
+
+            }
+            else
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Model.Order.First().Status
+                </div>
+
+            }
+
+        }
+    </div>
         <div class="col-sm-12">
             <div id="projectView" style="margin-top: 10px"></div>
         </div>

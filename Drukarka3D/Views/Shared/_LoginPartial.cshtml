@@ -6,6 +6,11 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
+    @if (User.Identity.Name.Equals("admin"))
+    {
+        <li style="background-color: red"><a href="@Url.Action("AdminPanel","Account")"><strong style="color: white">Panel Admina</strong> <span class="sr-only">(current)</span></a></li>
+
+    }
     <li style="background-color: #b3ffff"><a href="@Url.Action("Loader","Home")"><strong>Drukuj</strong> <span class="sr-only">(current)</span></a></li>
     <li class="dropdown" id="navbar-dropdown-btn">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User) <span class="caret"></span></a>

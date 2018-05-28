@@ -129,6 +129,27 @@ namespace Drukarka3D.Controllers
             });
         }//Dawid
 
+        [HttpPost]
+        public IActionResult AdminPanel(string FileName="", string Message="")
+        {
+            if(!FileName.Equals("")&&!Message.Equals(""))
+            {
+                var order = context.Order.Where(o => o.Path.Equals(FileName+".stl")).FirstOrDefault();
+                if(order!=default(Order))
+                {
+                    order.Status = Message;
+                    context.SaveChanges();
+                }
+            }
+
+            return View();
+        }
+
+        public IActionResult AdminPanel()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> FavouriteProjectsAsync(string filter = "", int page = 1,
             string sortExpression = "Status", string sortOrder = "Ascending", int elementsOnPage = 20, int onPage=10)
         {

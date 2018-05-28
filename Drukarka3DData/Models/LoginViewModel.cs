@@ -9,7 +9,7 @@ namespace Drukarka3DData.Models
     {
         [StringLength(50)]
         [Display(Name = "Email:")]
-        [Required(ErrorMessage = "Musisz wprowadzić login"), MinLength(6), MaxLength(50)]
+        [Required(ErrorMessage = "Musisz wprowadzić login"), MinLength(5), MaxLength(50)]
         public string Login { get; set; }
 
         [StringLength(50)]
