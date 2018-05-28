@@ -251,7 +251,7 @@
             }
 
         </div>
-        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><label><a class="btn btn-primary" asp-action="Download" role="button" asp-route-filename="@Model.Order.First().Path">Pobierz</a></label></div>
+        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><label><a class="btn btn-primary" asp-action="Download" role="button" asp-route-filename="@Model.Order.First().Path">Pobierz <span class="glyphicon glyphicon-download"></span></a></label></div>
         @*<button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px; margin-top: 5px;"><strong>Drukuj</strong></button>*@
         @*@await Html.PartialAsync("_ProjectViewPartial")*@
     </div>

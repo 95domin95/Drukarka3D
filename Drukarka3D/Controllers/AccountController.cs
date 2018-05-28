@@ -56,7 +56,7 @@ namespace Drukarka3D.Controllers
             //Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
 
             var path1 = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", "kuter.stl");
+            Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", data.FilePath);
 
             string currentDate = DateTime.Now.ToString();
             currentDate = currentDate.Replace(':', '_');

@@ -82,7 +82,7 @@
             </script>
         </div>
         <div class="col-sm-6 col-xs-6" style="text-align: left">
-            <button type="submit" class="btn btn-primary" id="print" style="margin-bottom: 10px; margin-top: 5px">Drukuj</button>
+            <button type="submit" class="btn btn-primary" id="print" style="margin-bottom: 10px; margin-top: 5px">Drukuj <span class="glyphicon glyphicon-print"></span></button>
         </div>
     </div>
     <div class="row">
@@ -285,6 +285,6 @@
             }
 
         </div>
-        <div class="col-sm-12" style="margin-bottom: 10px;"><label><a class="btn btn-primary" role="button" asp-action="Download" asp-controller="Home" asp-route-filename="@Model.Order.First().Path">Pobierz</a></label></div>
+        <div class="col-sm-12" style="margin-bottom: 10px;"><label><a class="btn btn-primary" role="button" asp-action="Download" asp-controller="Home" asp-route-filename="@Model.Order.First().Path">Pobierz <span class="glyphicon glyphicon-download"></span></a></label></div>
     </div>
 </div>
