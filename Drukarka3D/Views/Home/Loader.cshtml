@@ -26,7 +26,7 @@
 
     <form asp-controller="Home" asp-action="UploadFile" method="post" enctype="multipart/form-data">
         <div class="col-xs-12" style="margin-top:10px">
-            <label class="btn btn-primary btn-file">Wybierz plik<input type="file" name="file" id="file" accept=".stl" /></label>
+            <label class="btn btn-primary btn-file">Wybierz plik<input asp-for="File" type="file"  id="file" accept=".stl" /></label>
             <br />
             <br />
         </div>
@@ -34,7 +34,7 @@
             <label asp-for="ProjectName">
                 Nazwa projektu:
             </label>
-            <input asp-for="ProjectName" type="text" class="form-control" name="projectName" id="projectName" value="MojProjekt" />
+            <input asp-for="ProjectName" type="text" class="form-control" id="projectName" value="MojProjekt" />
             <span asp-validation-for="ProjectName" class="text-danger"></span>
             <br />
         </div>
@@ -42,7 +42,7 @@
             <label asp-for="IsPrivate">
                 Projekt publiczny:
             </label>
-            <input asp-for="IsPrivate" type="checkbox" name="isPrivate" id="isPrivate" checked />
+            <input asp-for="IsPrivate" type="checkbox" id="isPrivate" checked />
             <span asp-validation-for="IsPrivate" class="text-danger"></span>
             <br />
         </div>

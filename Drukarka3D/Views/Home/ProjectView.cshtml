@@ -11,26 +11,26 @@
 
 <div class="box">
     <div class="row">
-            <div class="col-xs-12">
-        @if (!Model.Order.First().Status.Equals("Przyjęto"))
+        <div class="col-xs-12">
+            @if (!Model.Order.First().Status.Equals("Przyjęto"))
         {
-            @if(Model.Order.First().Status.Equals("Zatwierdzono"))
-            {
-                <div class="alert alert-success" role="alert">
-                    @Model.Order.First().Status
-                </div>
+            @if (Model.Order.First().Status.Equals("Zatwierdzono"))
+        {
+            <div class="alert alert-success" role="alert">
+                @Model.Order.First().Status
+            </div>
 
-            }
-            else
-            {
-                <div class="alert alert-danger" role="alert">
-                    @Model.Order.First().Status
-                </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.Order.First().Status
+        </div>
 
-            }
+}
 
-        }
-    </div>
+    }
+        </div>
         <div class="col-sm-12">
             <div id="projectView" style="margin-top: 10px"></div>
         </div>
@@ -38,7 +38,34 @@
             @Model.Order.First().Name
         </div>
         <div class="col-sm-12 col-xs-12">
-            <div id="@Model.Order.First().OrderId" style="margin: auto"></div>
+            @if(!Model.IsRated)
+            {
+                @if(Model.LoggedUser!=null)
+                {
+                    @if (Model.Owner.Id.Equals(Model.LoggedUser.Id))
+                    {
+                        <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Nie możesz oceniać swoich projektów"></div>
+
+                    }
+                    else
+                    {
+                        <div id="@Model.Order.First().OrderId" style="margin: auto" data-toggle="tooltip" data-html="true" title="Przeciągnij odpowiednią ilość gwiazdek by ocenić"></div>
+
+                    }
+
+                }
+                else
+                {
+                    <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Musisz być zalogowany by oceniać projekty innych"></div>
+
+                }
+
+            }
+            else
+            { 
+                <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Już oceniłeś ten projekt"></div>
+            }
+
             <script>
 
                 window.addEventListener("load", function () {
@@ -61,7 +88,7 @@
                             contentType: "application/json; charset=utf-8"
                         }).done(function (data) {
                             alert("Wysłano do druku");
-                        });;
+                        });
                     });
 
                     $("#projectView").css("width", function () {
@@ -72,7 +99,7 @@
                     });
 
                     $("#@Model.Order.First().OrderId").rateYo({
-                        @{bool readOnly = !((!Model.IsRated) && (Model.IsSignedIn) && (!Model.IsProjectOwner));}
+                        @{bool readOnly = !((!Model.IsRated) && (Model.LoggedUser!=null) && (!Model.Owner.Id.Equals(Model.LoggedUser.Id)));}
                         rating: parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")),
                         readOnly: '@readOnly' === '@true',
                         onSet: function (rating, rateYoInstance) {
@@ -160,9 +187,9 @@
                                 data: JSON.stringify(data),
                                 dataType: 'JSON',
                                 contentType: "application/json; charset=utf-8"
-                            }).done(function () { 
+                            }).done(function () {
                                 document.location.reload();
-                            }).fail(function () { 
+                            }).fail(function () {
                                 document.location.reload();
                             });
 
@@ -233,22 +260,23 @@
             </script>
 
         </div>
+        <div class="col-sm-12">Właściciel: @Model.Owner</div>
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
         <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>
         <div class="col-sm-12">
             @if (!Model.IsSignedIn)
-            {
-                <button type="submit" class="btn btn-link" id="like-btn" disabled>
-                    <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div style="font-size: large">@Model.LikesCount</div>
-                </button>
-            }
-            else
-            {
-                <button type="submit" class="btn btn-link" id="like-btn">
-                    <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div id="likes-count-div" style="font-size: large">@Model.LikesCount</div>
-                </button>
+        {
+            <button type="submit" class="btn btn-link" id="like-btn" disabled>
+                <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div style="font-size: large">@Model.LikesCount</div>
+            </button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-link" id="like-btn">
+            <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div id="likes-count-div" style="font-size: large">@Model.LikesCount</div>
+        </button>
 
-            }
+}
 
         </div>
         <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px; margin-left: auto; margin-right: auto;"><label><a class="btn btn-primary" asp-action="Download" role="button" asp-route-filename="@Model.Order.First().Path">Pobierz <span class="glyphicon glyphicon-download"></span></a></label></div>

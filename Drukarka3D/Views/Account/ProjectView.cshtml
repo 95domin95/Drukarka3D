@@ -93,8 +93,36 @@
             @Model.Order.First().Name
         </div>
         <div class="col-sm-12 col-xs-12">
-            <div id="@Model.Order.First().OrderId" style="margin: auto"></div>
-            <script>
+            @if(!Model.IsRated)
+            {
+                @if(Model.LoggedUser!=null)
+                {
+                    @if (Model.Owner.Id.Equals(Model.LoggedUser.Id))
+                    {
+                        <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Nie możesz oceniać swoich projektów"></div>
+
+                    }
+                    else
+                    {
+                        <div id="@Model.Order.First().OrderId" style="margin: auto" data-toggle="tooltip" data-html="true" title="Przeciągnij odpowiednią ilość gwiazdek by ocenić"></div>
+
+                    }
+
+                }
+                else
+                {
+                    <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Musisz być zalogowany by oceniać projekty innych"></div>
+
+                }
+
+            }
+            else
+            { 
+                <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Już oceniłeś ten projekt"></div>
+            }
+
+
+                <script>
                 window.addEventListener("load", function () {
                     "use strict";
 
@@ -159,8 +187,9 @@
                     });
 
                     $("#@Model.Order.First().OrderId").rateYo({
+                         @{bool readOnly = !((!Model.IsRated) && (Model.LoggedUser!=null) && (!Model.Owner.Id.Equals(Model.LoggedUser.Id)));}
                         rating: parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.Order.First().Rate.ToString().Replace(",", ".")),
-                        readOnly: true,
+                        readOnly: "@readOnly" === "@true",
                         onSet: function (rating, rateYoInstance) {
 
                             var data = { "Rate": rating, "Id": @Model.Order.First().OrderId.ToString() };
@@ -263,9 +292,10 @@
 
                         return false;
                     }
-            </script>
+                </script>
 
         </div>
+        <div class="col-sm-12">Właściciel: @Model.Owner</div>
         <div class="col-sm-12">Data dodania: @Model.Order.First().UploadDate</div>
         <div class="col-sm-12">Status: @Model.Order.First().Status</div>
         <div class="col-sm-12">Liczba wyświetleń: @Model.Order.First().ViewsCount</div>

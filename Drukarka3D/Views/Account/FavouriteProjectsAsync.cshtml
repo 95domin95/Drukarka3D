@@ -74,7 +74,14 @@
 </div>
 <div class="container-fluid">
     <div class="row imagetiles">
-
+        @if(Model.Orders.Count().Equals(0))
+        {
+            <div class="col-xs-12">
+                <div class="alert alert-info" role="alert">
+                    Brak elementów do wyświetlenia
+                </div>
+            </div>
+        }
         @for (int j = 0; j < Model.Orders.Count(); j++)
         {
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">

@@ -6,6 +6,9 @@ namespace Drukarka3DData.Models
 {
     public class OrderViewModel
     {
+        public bool IsLikedByLoggedUser { get; set; }
+        public ApplicationUser LoggedUser { get; set; }
+        public ApplicationUser Owner { get; set; }
         public int LikesCount { get; set; }
         public string SearchString { get; set; }
         public string SortingOrder { get; set; }

@@ -115,7 +115,7 @@ namespace Drukarka3D.Controllers
         }//Kamil
 
         [HttpPost]
-        public IActionResult ProjectView(IFormCollection param)
+        public async Task<IActionResult> ProjectView(IFormCollection param)
         {
             try
             {
@@ -132,21 +132,37 @@ namespace Drukarka3D.Controllers
                 ICollection<Order> order = context.Order.Where(o => o
                 .OrderId.Equals(tmp)).ToList();
 
+                var owner = context.Users.Where(u => u.Id.Equals(order
+                .FirstOrDefault().UserId)).FirstOrDefault();
+
+                bool isLikedByLoggedUser = false;
+
+                var user = await userManager.GetUserAsync(HttpContext.User);
+
+                if(user!=null&&user!=default(ApplicationUser))
+                {
+                    var favourite = context.UserFavouriteProject.Where(f => f.UserId.Equals(user.Id)).FirstOrDefault();
+                    
+                    if(favourite!=null&&favourite!=default(UserFavoriteProject))
+                    {
+                        if(favourite.IsFavourite)
+                        {
+                            isLikedByLoggedUser = true;
+                        }
+                    }
+                }
+
                 if (!signInManager.IsSignedIn(User)) isSignedIn = false;
                 else
                 {
                     project = context.UserFavouriteProject
-                    .Where(p => p.OrderId.Equals(tmp))
+                    .Where(p => p.Order.Equals(tmp)
+                    && p.UserId.Equals(userManager.GetUserId(HttpContext.User)))
                     .FirstOrDefault();
 
                     if (project != default(UserFavoriteProject))
                     {
                         if (project.IsRated.Equals(true)) isRated = true;
-
-                        project = context.UserFavouriteProject
-                        .Where(p => p.Order.Equals(tmp)
-                        && p.UserId.Equals(userManager.GetUserId(HttpContext.User)))
-                        .FirstOrDefault();
 
                         if (project != default(UserFavoriteProject))
                         {
@@ -167,6 +183,9 @@ namespace Drukarka3D.Controllers
 
                 return View(new OrderViewModel()
                 {
+                    IsLikedByLoggedUser = isLikedByLoggedUser,
+                    LoggedUser = user,
+                    Owner = owner,
                     NumberOfResolutsInPage = 0,
                     PageNumber = 1,
                     SortingType = String.Empty,
@@ -388,35 +407,88 @@ namespace Drukarka3D.Controllers
             return allUsrProjects.Count() != 0;
         }//Dawid
 
+        //[HttpPost]
+        //[Authorize]
+        //[RequestSizeLimit(100_000_000)]
+        //public async Task<IActionResult> UploadFile(string projectName, string isPrivate, IFormFile file)
+        //{
+        //    if (file == null || file.Length == 0)
+        //    {
+        //        //await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
+        //        return RedirectToAction("Loader", new { message="Nie wybrano pliku!"});
+        //    }
+
+        //    var user = await userManager.GetUserAsync(HttpContext.User);
+
+        //    if (CheckProjectNameAvailability(projectName, user))
+        //    {
+        //        //await Response.WriteAsync("<script>alert('Już stworzyłeś projekt o takiej samej nazwie!')</script>");
+        //        return RedirectToAction("Loader", new { message = "Już stworzyłeś projekt o takiej samej nazwie!" });
+        //    }
+
+        //    if (projectName == null||projectName == "") projectName = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
+
+        //    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", user.Id + projectName + ".stl");
+                        
+        //    using (var stream = new FileStream(path, FileMode.Create))
+        //    {
+        //        await file.CopyToAsync(stream);
+        //    }
+
+        //    if (isPrivate == null) isPrivate = "off";
+
+        //    context.Order.Add(new Order
+        //    {
+        //        Status = "Przyjęto",
+        //        User = user,
+        //        UserId = user.Id,
+        //        UploadDate = DateTime.Now,
+        //        Private = isPrivate.Equals("on") ? false : true,
+        //        Name = projectName,
+        //        Path = user.Id + projectName + ".stl",
+        //        UserScreenPath = "/images/" + user.Id + projectName + "thumb.png"
+        //    });
+
+        //    context.SaveChanges();
+            
+        //    var pathForStl = Path.Combine(
+        //    Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\", projectName);
+        //    DirectoryInfo d = new DirectoryInfo(pathForStl);
+            
+        //    //ForwardFiles(pathForStl, userOrder.Path);
+
+        //    return RedirectToAction("Loader", new { message="Pomyślnie dodano projekt."});
+        //}//Dominik
+
         [HttpPost]
         [Authorize]
         [RequestSizeLimit(100_000_000)]
-        public async Task<IActionResult> UploadFile(string projectName, string isPrivate, IFormFile file)
+        public async Task<IActionResult> UploadFile(LoaderViewModel vm)
         {
-            if (file == null || file.Length == 0)
+            if (vm.File == null || vm.File.Length == 0)
             {
                 //await Response.WriteAsync("<script>alert('Nie wybrano pliku!')</script>");
-                return RedirectToAction("Loader", new { message="Nie wybrano pliku!"});
+                return RedirectToAction("Loader", new { message = "Nie wybrano pliku!" });
             }
 
             var user = await userManager.GetUserAsync(HttpContext.User);
 
-            if (CheckProjectNameAvailability(projectName, user))
+            if (CheckProjectNameAvailability(vm.ProjectName, user))
             {
                 //await Response.WriteAsync("<script>alert('Już stworzyłeś projekt o takiej samej nazwie!')</script>");
                 return RedirectToAction("Loader", new { message = "Już stworzyłeś projekt o takiej samej nazwie!" });
             }
 
-            if (projectName == null||projectName == "") projectName = file.GetFilename().Substring(0, file.GetFilename().Length - 4);
+            if (vm.ProjectName == null || vm.ProjectName == "") vm.ProjectName = vm.File.GetFilename().Substring(0, vm.File.GetFilename().Length - 4);
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", user.Id + projectName + ".stl");
-                        
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DoZatwierdzenia/", user.Id + vm.ProjectName + ".stl");
+
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await vm.File.CopyToAsync(stream);
             }
 
-            if (isPrivate == null) isPrivate = "off";
+            if (vm.IsPrivate == null) vm.IsPrivate = "off";
 
             context.Order.Add(new Order
             {
@@ -424,21 +496,21 @@ namespace Drukarka3D.Controllers
                 User = user,
                 UserId = user.Id,
                 UploadDate = DateTime.Now,
-                Private = isPrivate.Equals("on") ? false : true,
-                Name = projectName,
-                Path = user.Id + projectName + ".stl",
-                UserScreenPath = "/images/" + user.Id + projectName + "thumb.png"
+                Private = vm.IsPrivate.Equals("on") ? false : true,
+                Name = vm.ProjectName,
+                Path = user.Id + vm.ProjectName + ".stl",
+                UserScreenPath = "/images/" + user.Id + vm.ProjectName + "thumb.png"
             });
 
             context.SaveChanges();
-            
+
             var pathForStl = Path.Combine(
-            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\", projectName);
+            Directory.GetCurrentDirectory(), "wwwroot\\DoZatwierdzenia\\", vm.ProjectName);
             DirectoryInfo d = new DirectoryInfo(pathForStl);
-            
+
             //ForwardFiles(pathForStl, userOrder.Path);
 
-            return RedirectToAction("Loader", new { message="Pomyślnie dodano projekt."});
+            return RedirectToAction("Loader", new { message = "Pomyślnie dodano projekt." });
         }//Dominik
 
         [HttpPost]

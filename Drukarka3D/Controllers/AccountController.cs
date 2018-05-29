@@ -341,7 +341,7 @@ namespace Drukarka3D.Controllers
 
         [Authorize]
         [HttpPost]
-        public IActionResult ProjectView(IFormCollection param)
+        public async Task<IActionResult> ProjectView(IFormCollection param)
         {
             try
             {
@@ -354,12 +354,34 @@ namespace Drukarka3D.Controllers
                 ICollection<Order> order = context.Order.Where(o => o
                 .OrderId.Equals(Convert.ToInt32(tmp))).ToList();
 
+                var owner = context.Users.Where(u => u.Id.Equals(order
+                .FirstOrDefault().UserId)).FirstOrDefault();
+
+                bool isLikedByLoggedUser = false;
+
+                var user = await userManager.GetUserAsync(HttpContext.User);
+
+                if (user != null && user != default(ApplicationUser))
+                {
+                    var favourite = context.UserFavouriteProject.Where(f => f.UserId.Equals(user.Id)).FirstOrDefault();
+
+                    if (favourite != null && favourite != default(UserFavoriteProject))
+                    {
+                        if (favourite.IsFavourite)
+                        {
+                            isLikedByLoggedUser = true;
+                        }
+                    }
+                }
 
                 order.First().ViewsCount += 1;
                 context.SaveChanges();
 
                 return View(new OrderViewModel()
                 {
+                    IsLikedByLoggedUser = isLikedByLoggedUser,
+                    LoggedUser = user,
+                    Owner = owner,
                     NumberOfResolutsInPage = 0,
                     PageNumber = 1,
                     SortingType = String.Empty,
