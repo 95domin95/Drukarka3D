@@ -117,12 +117,22 @@
 <div class="col-xs-12" style="text-align: center">
     @{ var numberOfElements = Model.NumberOfElements;
         var numberOfPages = Model.NumberOfPages;
-        if (numberOfElements % Model.OnPage != 0)
-        {
-            numberOfPages += 1;
-        }
+        //if (numberOfElements % Model.OnPage != 0)
+        //{
+        //    numberOfPages += 1;
+        //}
         var next = Model.Page + 1;
         var prev = Model.Page - 1;
+        if(next>numberOfPages)
+        {
+            next = numberOfPages;
+
+        }
+        if(prev<1)
+        {
+            prev = 1;
+
+        }
     }
 
 

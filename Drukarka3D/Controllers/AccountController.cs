@@ -85,7 +85,10 @@ namespace Drukarka3D.Controllers
                 .Equals(userManager.GetUserId(HttpContext.User)))
                 .OrderBy(order => order.UploadDate).AsQueryable();
 
-            projects = projects.Where(p => p.Name.Contains(filter));
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                projects = projects.Where(p => p.Name.Contains(filter));
+            }
 
             ViewData["Title"] = "Moje projekty";
 
@@ -174,7 +177,10 @@ namespace Drukarka3D.Controllers
                          where p.UserId.Equals(user.Id)
                          select o ;
 
-            projects = projects.Where(p => p.Name.Contains(filter));
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                projects = projects.Where(p => p.Name.Contains(filter));
+            }
 
             ViewData["Title"] = "Ulubione";
 
@@ -184,13 +190,13 @@ namespace Drukarka3D.Controllers
                     projects = projects.OrderBy(p => p.Likes);
                     break;
                 case "Alfabetycznie":
-                    projects = projects.OrderBy(p => p.Name);                  
+                    projects = projects.OrderBy(p => p.Name);
                     break;
                 case "Najnowsze":
                     projects = projects.OrderBy(p => p.UploadDate);
                     break;
                 case "Liczba wyświetleń":
-                    projects = projects.OrderBy(p => p.RatingsCount);                    
+                    projects = projects.OrderBy(p => p.RatingsCount);
                     break;
                 default:
                     break;
@@ -202,7 +208,7 @@ namespace Drukarka3D.Controllers
 
             var numberOfElements = projects.Count();
 
-            var numberOfPages = (int)(projects.Count() / onPage);
+            int numberOfPages = (int)(projects.Count() / onPage);
 
             var elToTake = onPage;
 
