@@ -9,7 +9,7 @@
         <div class="col-xs-12">
             @if (!Model.Order.First().Status.Equals("Przyjęto"))
             {
-                @if(Model.Order.First().Status.Equals("Zatwierdzono"))
+                @if (Model.Order.First().Status.Equals("Zatwierdzono"))
                 {
                     <div class="alert alert-success" role="alert">
                         @Model.Order.First().Status
@@ -28,27 +28,30 @@
         </div>
     </div>
 
-    <div class="row" style="background-color: #b3ffff;margin-left: auto;margin-right: auto; margin-bottom: 10px">
-        <div class="col-sm-12">
-            <h4>Panel użytkownika</h4>
-        </div>
-        <div class="col-sm-6 col-xs-6" style="text-align: right">
-            <div style="margin-top:5px">
-                @if (Model.Order.First().Private)
-                {
-                    <label>Projekt publiczny: <input id="isPrivate" type="checkbox" /></label>
-                }
-                else
-                {
-                    <label>Projekt publiczny: <input id="isPrivate" type="checkbox" checked /></label>
-                }            
-                <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px">Zmień</button>
-                <form method="get">
-                    <button asp-controller="Account" asp-action="RemoveProject" name="OrderId" value="@Model.Order.First().OrderId" type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Usuń <span class="glyphicon glyphicon-remove" style="color: red"></span></button>
-                </form>    
+    @if (Model.IsProjectOwner)
+    {
+        <div class="row" id="user-panel" style="background-color: #b3ffff;margin-left: auto;margin-right: auto; margin-bottom: 10px">
+            <div class="col-sm-12">
+                <h4>Panel użytkownika</h4>
             </div>
-            <script>
+            <div class="col-sm-6 col-xs-6" style="text-align: right">
+                <div style="margin-top:5px">
+                    @if (Model.Order.First().Private)
+                    {
+                        <label>Projekt publiczny: <input id="isPrivate" type="checkbox" /></label>
+                    }
+                    else
+                    {
+                        <label>Projekt publiczny: <input id="isPrivate" type="checkbox" checked /></label>
+                    }
+                    <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px">Zmień</button>
+                    <form method="get">
+                        <button asp-controller="Projects" asp-action="RemoveProject" name="OrderId" value="@Model.Order.First().OrderId" type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Usuń <span class="glyphicon glyphicon-remove" style="color: red"></span></button>
+                    </form>
+                </div>
+                <script>
                 window.addEventListener("load", function () {
+
                     $("#confirm").click(function () {
                         var isPrivate = $("#isPrivate").prop("checked");
 
@@ -70,7 +73,7 @@
 
                         $.ajax({
                             type: 'POST',
-                            url: 'Print',
+                            url: '../File/Print',
                             data: JSON.stringify(data),
                             dataType: 'JSON',
                             contentType: "application/json; charset=utf-8"
@@ -79,12 +82,16 @@
                         });;
                     });
                 }, false);
-            </script>
+                </script>
+            </div>
+            <div class="col-sm-6 col-xs-6" style="text-align: left">
+                <button type="submit" class="btn btn-primary" id="print" style="margin-bottom: 10px; margin-top: 5px">Drukuj <span class="glyphicon glyphicon-print"></span></button>
+            </div>
         </div>
-        <div class="col-sm-6 col-xs-6" style="text-align: left">
-            <button type="submit" class="btn btn-primary" id="print" style="margin-bottom: 10px; margin-top: 5px">Drukuj <span class="glyphicon glyphicon-print"></span></button>
-        </div>
-    </div>
+
+    }
+
+
     <div class="row">
         <div class="col-sm-12">
             <div id="projectView"></div>
@@ -93,9 +100,9 @@
             @Model.Order.First().Name
         </div>
         <div class="col-sm-12 col-xs-12">
-            @if(!Model.IsRated)
+            @if (!Model.IsRated)
             {
-                @if(Model.LoggedUser!=null)
+                @if (Model.LoggedUser != null)
                 {
                     @if (Model.Owner.Id.Equals(Model.LoggedUser.Id))
                     {
@@ -117,18 +124,18 @@
 
             }
             else
-            { 
+            {
                 <div id="@Model.Order.First().OrderId" style="margin: auto; opacity: 0.5" data-toggle="tooltip" data-html="true" title="Już oceniłeś ten projekt"></div>
             }
 
 
-                <script>
+            <script>
                 window.addEventListener("load", function () {
                     "use strict";
 
                     $("#like-btn").click(function () {
 
-                        if ("@Model.IsLiked" === "True") {
+                        if ("@Model.IsLikedByLoggedUser" === "True") {
                             var likesDec = @Model.Order.First().Likes - 1;
 
                             $('#likes-count-div').html(likesDec);
@@ -292,7 +299,7 @@
 
                         return false;
                     }
-                </script>
+            </script>
 
         </div>
         <div class="col-sm-12">Właściciel: @Model.Owner</div>
@@ -315,6 +322,6 @@
             }
 
         </div>
-        <div class="col-sm-12" style="margin-bottom: 10px;"><label><a class="btn btn-primary" role="button" asp-action="Download" asp-controller="Home" asp-route-filename="@Model.Order.First().Path">Pobierz <span class="glyphicon glyphicon-download"></span></a></label></div>
+        <div class="col-sm-12" style="margin-bottom: 10px;"><label><a class="btn btn-primary" role="button" asp-action="Download" asp-controller="File" asp-route-filename="@Model.Order.First().Path">Pobierz <span class="glyphicon glyphicon-download"></span></a></label></div>
     </div>
 </div>

@@ -4,6 +4,22 @@
 <script src="/js/jquery.rateyo.min.js"></script>
 
 <div class="row">
+    <div class="col-xs-12">
+        @if (ViewData["message"] != null)
+        {
+            @if (!ViewData["message"].Equals(""))
+            {
+
+                <div class="alert alert-success" role="alert">
+                    @ViewData["message"]
+                </div>
+            }
+
+        }
+    </div>
+</div>
+
+<div class="row">
     <div class="col-sm-12">
         <h3>@ViewData["Title"]</h3>
     </div>
@@ -13,7 +29,7 @@
 
 <div class="row" id="gallery-filter-menu">
     @*<div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1" style="margin-bottom: 10px">*@
-    <form asp-controller="Account" asp-action="FavouriteProjectsAsync" method="get" id="index-form">
+    <form asp-controller="Projects" asp-action="FavouriteProjectsAsync" method="get" id="index-form">
         <div class="col-sm-4">
             <div class="gallery-search-inputs">
                 Sortuj:
@@ -74,7 +90,7 @@
 </div>
 <div class="container-fluid">
     <div class="row imagetiles">
-        @if(Model.Orders.Count().Equals(0))
+        @if (Model.Orders.Count().Equals(0))
         {
             <div class="col-xs-12">
                 <div class="alert alert-info" role="alert">
@@ -85,7 +101,7 @@
         @for (int j = 0; j < Model.Orders.Count(); j++)
         {
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">
-                <form asp-controller="Account" asp-action="ProjectView" method="post" enctype="multipart/form-data">
+                <form asp-controller="Projects" asp-action="ProjectView" method="post" enctype="multipart/form-data">
                     <input type="image" src="@Model.Orders.ElementAt(j).UserScreenPath" class="img-responsive" name="@Model.Orders.ElementAt(j).OrderId" />
                 </form>
                 <div class="img-gallery-img-footer">
@@ -112,56 +128,57 @@
 
         }
     </div>
-</div>
-
-<div class="col-xs-12" style="text-align: center">
-    @{ var numberOfElements = Model.NumberOfElements;
-        var numberOfPages = Model.NumberOfPages;
-        //if (numberOfElements % Model.OnPage != 0)
-        //{
-        //    numberOfPages += 1;
-        //}
-        var next = Model.Page + 1;
-        var prev = Model.Page - 1;
-        if(next>numberOfPages)
-        {
-            next = numberOfPages;
-
-        }
-        if(prev<1)
-        {
-            prev = 1;
-
-        }
-    }
 
 
-
-    <ul class="pagination">
-        <li><button class="btn btn-default" name="page" value="@prev" form="index-form">Poprzednia</button></li>
-        <li><button class="btn btn-default" name="page" value="1" form="index-form">Pierwsza</button></li>
-        @for (int i = 1; i <= numberOfPages; i++)
-        {
-            @if (i > Model.Page - 3 && i < Model.Page + 3)
+    <div class="col-xs-12" style="text-align: center">
+        @{ var numberOfElements = Model.NumberOfElements;
+            var numberOfPages = Model.NumberOfPages;
+            //if (numberOfElements % Model.OnPage != 0)
+            //{
+            //    numberOfPages += 1;
+            //}
+            var next = Model.Page + 1;
+            var prev = Model.Page - 1;
+            if (next > numberOfPages)
             {
-                @if (i <= Model.NumberOfPages)
+                next = numberOfPages;
+
+            }
+            if (prev < 1)
+            {
+                prev = 1;
+
+            }
+        }
+
+
+
+        <ul class="pagination">
+            <li><button class="btn btn-default" name="page" value="@prev" form="index-form">Poprzednia</button></li>
+            <li><button class="btn btn-default" name="page" value="1" form="index-form">Pierwsza</button></li>
+            @for (int i = 1; i <= numberOfPages; i++)
+            {
+                @if (i > Model.Page - 3 && i < Model.Page + 3)
                 {
-
-                    @if (i.Equals(Model.Page))
+                    @if (i <= Model.NumberOfPages)
                     {
-                        <li><button class="btn btn-primary" name="page" value="@i" form="index-form">@i</button></li>
 
+                        @if (i.Equals(Model.Page))
+                        {
+                            <li><button class="btn btn-primary" name="page" value="@i" form="index-form">@i</button></li>
+
+                        }
+                        else
+                        {
+                            <li><button class="btn btn-default" name="page" value="@i" form="index-form">@i</button></li>
+                        }
                     }
-                    else
-                    {
-                        <li><button class="btn btn-default" name="page" value="@i" form="index-form">@i</button></li>
-                    }
+
                 }
 
             }
-
-        }
-        <li><button class="btn btn-default" name="page" value="@numberOfPages" form="index-form">Ostatnia</button></li>
-        <li><button class="btn btn-default" name="page" value="@next" form="index-form">Następna</button></li>
-    </ul>
+            <li><button class="btn btn-default" name="page" value="@numberOfPages" form="index-form">Ostatnia</button></li>
+            <li><button class="btn btn-default" name="page" value="@next" form="index-form">Następna</button></li>
+        </ul>
+    </div>
 </div>

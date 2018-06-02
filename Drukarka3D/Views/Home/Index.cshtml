@@ -8,6 +8,17 @@
 
 @*@await this.Component.InvokeAsync("Pager", new { pagingList = this.Model })*@
 
+@if (ViewData["message"] != null)
+{
+    @if (!ViewData["message"].Equals(""))
+    {
+        <div class="alert alert-info" role="alert">
+            @ViewData["message"]
+        </div>
+
+    }
+}
+
 <div class="row">
     <div class="col-sm-12">
         <h3>Wszystkie Projekty</h3>
@@ -36,9 +47,9 @@
                 @{ List<int> onPageValue = new List<int>();
                     onPageValue.Add(10); onPageValue.Add(20);
                     onPageValue.Add(50); onPageValue.Add(100);}
-                @foreach(var i in onPageValue)
+                @foreach (var i in onPageValue)
                 {
-                    @if(i.Equals(Convert.ToInt32(Model.RouteValue["onPage"])))
+                    @if (i.Equals(Convert.ToInt32(Model.RouteValue["onPage"])))
                     {
                         <option value="@i" selected>@i</option>
                     }
@@ -66,29 +77,29 @@
 </div>
 <div class="container-fluid">
     <div class="row imagetiles">
-            @if(Model.Count().Equals(0))
-            {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">
-                    <div class="alert alert-info" role="alert">
-                        Brak elementów do wyświetlenia
-                    </div>
+        @if (Model.Count().Equals(0))
+        {
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                <div class="alert alert-info" role="alert">
+                    Brak elementów do wyświetlenia
                 </div>
-            }
-            @for (int j = 0; j < Model.Count(); j++)
-            {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">
-                    <form asp-controller="Home" asp-action="ProjectView" method="post" enctype="multipart/form-data">
-                        <input type="image" src="@Model.ElementAt(j).UserScreenPath" class="img-responsive" name="@Model.ElementAt(j).OrderId" />
-                    </form>
-                    <div class="img-gallery-img-footer">
-                        <div style="font-size: large; text-align: left">@Model.ElementAt(j).Name</div>
-                        <div style="float: left; font-size: x-large">
-                            <div id="rateYo-@Model.ElementAt(j).OrderId" style="float: left"></div>(@Model.ElementAt(j).RatingsCount)
-                        </div>
-                        <div class="image-caption-div">
-                            <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div style="font-size: x-large">@Model.ElementAt(j).Likes</div>
-                        </div>
-                        <script>
+            </div>
+        }
+        @for (int j = 0; j < Model.Count(); j++)
+        {
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                <form asp-controller="Projects" asp-action="ProjectView" method="post" enctype="multipart/form-data">
+                    <input type="image" src="@Model.ElementAt(j).UserScreenPath" class="img-responsive" name="@Model.ElementAt(j).OrderId" />
+                </form>
+                <div class="img-gallery-img-footer">
+                    <div style="font-size: large; text-align: left">@Model.ElementAt(j).Name</div>
+                    <div style="float: left; font-size: x-large">
+                        <div id="rateYo-@Model.ElementAt(j).OrderId" style="float: left"></div>(@Model.ElementAt(j).RatingsCount)
+                    </div>
+                    <div class="image-caption-div">
+                        <span class="glyphicon glyphicon-heart" style="font-size: x-large; color: red"></span><div style="font-size: x-large">@Model.ElementAt(j).Likes</div>
+                    </div>
+                    <script>
 
                                 $("#rateYo-@Model.ElementAt(j).OrderId").rateYo({
             rating: (parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")) > 5 ? 0 : parseFloat(@Model.ElementAt(j).Rate.ToString().Replace(",", ".")))/5,
@@ -97,9 +108,9 @@
                                     starWidth: "30px",
                                     readOnly: true
                                 });
-                        </script>
-                    </div>
-                </div>           
+                    </script>
+                </div>
+            </div>
 
         }
     </div>

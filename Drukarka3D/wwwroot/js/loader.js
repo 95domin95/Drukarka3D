@@ -116,14 +116,14 @@ function formValid()
 
     var alphNum = /^[a-zA-Z0-9]+$/;
 
-    validator = alphNum.test(projectName) && projectName.length > 1;
+    validator = alphNum.test(projectName) && projectName.length > 1 && projectName.length < 26;
 
     return validator;
 }
 
 function createCanvasScreenshot(canvas)
 {
-    var _url = 'UploadImage';
+    var _url = '../File/UploadImage';
 
     var projectName = $("#projectName").val();
 
