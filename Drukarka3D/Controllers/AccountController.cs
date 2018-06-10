@@ -49,6 +49,7 @@ namespace Drukarka3D.Controllers
         public async Task<IActionResult> LogOut()
         {
             await _signInManager.SignOutAsync();
+            ViewData["message"] = "Wylogowano pomyślnie";
             return RedirectToAction("Login", "Account", new { message = "Wylogowano pomyślnie" });
         }//Kamil
 
@@ -69,7 +70,7 @@ namespace Drukarka3D.Controllers
                 {
                     return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError("", "Invalid Login Attempt.");
+                ModelState.AddModelError("", "Nieprawidłowy e-mail lub hasło.");
                 return View(vm);
             }
             return View(vm);

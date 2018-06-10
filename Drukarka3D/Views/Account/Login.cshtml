@@ -7,31 +7,42 @@
         {
         <a href="@Url.Action("Login", "Home")">Zaloguj</a>
     }*@
+@if (ViewData["message"] != null)
+{
+    @if (ViewData["message"].Equals("Wylogowano pomyślnie"))
+    {
+        <div class="col-xs-12" style="margin-top: 5px;">
+            <div class="alert alert-success" role="alert">
+                @ViewData["message"]
+            </div>
+        </div>
 
+    }
+}
 <div class="box row">
     <h2>Logowaie</h2>
     <div class="col-sm-4 col-sm-offset-4 col-xs-6 col-xs-offset-3">
         <form method="post" asp-controller="Account" asp-action="Login">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            @*<div asp-validation-summary="All" class="text-danger"></div>*@
             <div>
                 <label asp-for="Login"></label>
                 <br>
                 <input asp-for="Login" class="form-control" />
-                <span asp-validation-for="Login"></span>
+                <span asp-validation-for="Login" class="text-danger"></span>
             </div>
 
             <div>
                 <label asp-for="Password"></label>
                 <br>
                 <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password"></span>
+                <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
             <div>
                 <label asp-for="RememberMe"></label>
                 <br>
                 <input asp-for="RememberMe" />
-                <span asp-validation-for="RememberMe"></span>
+                <span asp-validation-for="RememberMe" class="text-danger"></span>
             </div>
 
             <div>
