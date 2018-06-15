@@ -34,21 +34,28 @@
             <div class="col-sm-12">
                 <h4>Panel użytkownika</h4>
             </div>
-            <div class="col-sm-6 col-xs-6" style="text-align: right">
-                <div style="margin-top:5px">
-                    @if (Model.Order.First().Private)
-                    {
-                        <label>Projekt publiczny: <input id="isPrivate" type="checkbox" /></label>
-                    }
-                    else
-                    {
-                        <label>Projekt publiczny: <input id="isPrivate" type="checkbox" checked /></label>
-                    }
-                    <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px">Zmień</button>
-                    <form method="get">
-                        <button asp-controller="Projects" asp-action="RemoveProject" name="OrderId" value="@Model.Order.First().OrderId" type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Usuń <span class="glyphicon glyphicon-remove" style="color: red"></span></button>
-                    </form>
-                </div>
+            <div style="margin-top:5px">
+                <div class="col-sm-12 col-xs-12">
+
+                        @if (Model.Order.First().Private)
+                        {
+                            <label>Projekt publiczny: <input id="isPrivate" type="checkbox" /></label>
+                        }
+                        else
+                        {
+                            <label>Projekt publiczny: <input id="isPrivate" type="checkbox" checked /></label>
+                        }
+                        <button type="submit" class="btn btn-primary" id="confirm" style="margin-bottom: 10px">Zmień</button>
+                        <form method="get" style="display: inline">
+                            <button asp-controller="Projects" asp-action="RemoveProject" name="OrderId" value="@Model.Order.First().OrderId" type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Usuń <span class="glyphicon glyphicon-remove" style="color: red"></span></button>
+                        </form>
+                        <button type="submit" class="btn btn-primary" id="print" style="margin-bottom: 10px">Drukuj <span class="glyphicon glyphicon-print"></span></button>
+                    </div>
+                    @*<div class="col-sm-4 col-xs-12">
+                        <form method="get">
+                            <button asp-controller="Projects" asp-action="RemoveProject" name="OrderId" value="@Model.Order.First().OrderId" type="submit" class="btn btn-default" id="confirm" style="margin-bottom: 10px">Usuń <span class="glyphicon glyphicon-remove" style="color: red"></span></button>
+                        </form>
+                    </div>*@
                 <script>
                 window.addEventListener("load", function () {
 
@@ -84,9 +91,9 @@
                 }, false);
                 </script>
             </div>
-            <div class="col-sm-6 col-xs-6" style="text-align: left">
+            @*<div class="col-sm-4 col-xs-12">
                 <button type="submit" class="btn btn-primary" id="print" style="margin-bottom: 10px; margin-top: 5px">Drukuj <span class="glyphicon glyphicon-print"></span></button>
-            </div>
+            </div>*@
         </div>
 
     }
